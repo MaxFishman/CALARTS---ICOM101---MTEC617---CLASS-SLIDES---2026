@@ -7,7 +7,7 @@
 
 ---
 
-A set of interactive, browser-based lecture **slideshows** for CalArts' ICOM101 / MTEC617 course.
+Browser-based lecture **slideshows** for CalArts' ICOM101 / MTEC617 course.
 
 
 ---
