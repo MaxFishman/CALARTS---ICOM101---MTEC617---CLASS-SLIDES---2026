@@ -1,0 +1,55 @@
+<p align="center">
+  <img src="https://coursedog-images-public.s3.us-east-2.amazonaws.com/calarts/calarts-logo-blue.png" alt="California Institute of the Arts (CalArts) logo" width="360">
+</p>
+
+<h1 align="center">Intro to Web Development</h1>
+<p align="center"><strong>ICOM&nbsp;101 &nbsp;·&nbsp; MTEC&nbsp;617</strong><br>California Institute of the Arts &nbsp;·&nbsp; Spring 2026</p>
+
+---
+
+A set of interactive, browser-based lecture **slideshows** for CalArts' Intro to Web Development course. Each week is a single, self-contained HTML file — no build step, no dependencies — designed to be presented in class and explored by students afterward.
+
+Every deck shares one visual identity (a "view-source" browser frame built around the classic hyperlink palette) and its own topic-specific signature: element diagrams, the box model, device frames, a live DevTools console, a WordPress dashboard mock, an API flow, and a grading rubric.
+
+---
+
+## 👩‍🏫 Instructor
+
+**Max Fishman**
+📧 [mfishman@calarts.edu](mailto:mfishman@calarts.edu) &nbsp;·&nbsp; 📞 (626)&nbsp;463-3100
+
+---
+
+## 📚 Lectures
+
+Open **[`index.html`](index.html)** for the course hub, or jump straight to a week:
+
+| # | Week | Topic | Slides |
+|---|------|-------|:------:|
+| 01 | [What is the Web?](week-01.html) | client/server, DNS, HTML & CSS history | 13 |
+| 02 | [Introduction to HTML](week-02.html) | elements, hierarchy, headings, lists, links, images | 18 |
+| 03 | [Introduction to CSS](week-03.html) | rulesets, the box model, typography, web fonts | 20 |
+| 04 | [Responsive Web Design](week-04.html) | media queries, breakpoints, DevTools, frameworks | 14 |
+| 05 | [Position, Color & Motion](week-05.html) | positioning, color & backgrounds, transitions | 19 |
+| 06 | [WordPress](week-06.html) | CMS, themes & plugins, posts vs pages, hosting | 18 |
+| 07 | [Introduction to JavaScript](week-07.html) | console, data types, variables, events, jQuery | 17 |
+| 08 | [APIs & Frameworks](week-08.html) | APIs, request/response, React, Django & more | 11 |
+| 🎓 | [**Final Project**](week-09.html) | five-page site · SEO · analytics · rubric | 15 |
+
+---
+
+## ▶️ Presenting
+
+Open any week in a browser, then:
+
+- **`F`** (or the **⛶** button) — enter/exit fullscreen
+- **`←` `→`** or **Space** — previous / next slide
+- **`O`** — slide overview grid · **`Esc`** to close
+- **`1`–`9`** — jump to a slide · **`Home` / `End`** — first / last
+- Click the right/left side of a slide to move forward/back; swipe on touch
+
+The decks are responsive, respect `prefers-reduced-motion`, and adapt to light or dark themes.
+
+---
+
+<p align="center"><sub>© 2026 Max Fishman · California Institute of the Arts · ICOM 101 / MTEC 617</sub></p>
