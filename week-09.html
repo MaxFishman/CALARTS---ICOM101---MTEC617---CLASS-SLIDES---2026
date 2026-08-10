@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 09 · Final Project — ICOM101 / MTEC617</title>
+<meta name="description" content="Final project brief for Intro to Web Development (ICOM101 / MTEC617), CalArts — a five-page website bringing together HTML, CSS, JavaScript, WordPress, SEO & Analytics." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 09 · FINAL PROJECT
+     Same identity as Weeks 01–08. The capstone brief — it asks
+     for exactly the techniques these decks are built with.
+     Signatures: a 5-page sitemap, and a visual grading rubric.
+     ============================================================ */
+
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  /* ---------- deck frame ---------- */
+  .deck{ position:fixed; inset:clamp(10px,2.4vw,30px); background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); display:flex; flex-direction:column; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; } .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{ position:absolute; inset:0; padding:clamp(22px,3.8vw,60px); display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s; overflow:auto; }
+  .slide.active{ opacity:1; visibility:visible; transform:none; transition:opacity .55s var(--ease), transform .55s var(--ease); z-index:2; }
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; } .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; } .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; } .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,15px); color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(12px,1.7vw,22px); }
+  .eyebrow .num2{ color:var(--active); } .eyebrow .tag{ color:var(--link); }
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(28px,4.6vw,58px); }
+  .lead{ font-size:clamp(16px,1.75vw,23px); line-height:1.45; max-width:60ch; color:var(--ink); margin:clamp(12px,1.8vw,24px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+  code.ic{ font-family:var(--f-mono); font-size:.9em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  .talk{ margin-top:clamp(14px,2vw,26px); border-left:3px solid var(--visited); padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.05vw,14.5px); color:var(--muted); line-height:1.7; max-width:76ch; }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98; font-size:clamp(46px,9.4vw,140px);
+    color:var(--link); text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px); text-underline-offset:clamp(6px,1.2vw,16px); }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; align-items:center; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+  .duebadge{ font-family:var(--f-mono); font-size:clamp(11.5px,1.2vw,15px); color:var(--card); background:var(--active); padding:4px 12px; border-radius:999px; font-weight:500; }
+
+  /* ---------- two/three column ---------- */
+  .cols2{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.4vw,34px); margin-top:clamp(14px,2vw,26px); align-items:start; }
+  @media (max-width:880px){ .cols2{ grid-template-columns:1fr; } }
+  .caption{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:12px; line-height:1.55; max-width:64ch; }
+  .caption b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- sitemap ---------- */
+  .sitemap{ margin-top:clamp(14px,2vw,26px); }
+  .smnav{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:var(--ink); border-radius:10px 10px 0 0; padding:11px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.3vw,15px); }
+  .smnav .logo{ color:var(--card); font-family:var(--f-display); font-weight:700; margin-right:auto; }
+  .smnav .nl{ color:#c3c3cf; padding:5px 11px; border-radius:6px; }
+  .smnav .nl.active{ background:var(--link); color:#fff; }
+  .smpages{ display:grid; grid-template-columns:repeat(5,1fr); gap:clamp(8px,1.2vw,14px); margin-top:clamp(8px,1.2vw,14px); }
+  @media (max-width:760px){ .smpages{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:440px){ .smpages{ grid-template-columns:1fr; } }
+  .smpage{ border:1.5px solid var(--ink); border-radius:10px; background:var(--card); padding:clamp(12px,1.5vw,18px); display:flex; flex-direction:column; gap:6px;
+    box-shadow:3px 4px 0 rgba(0,0,0,.1); }
+  .smpage .em{ font-size:clamp(20px,2.2vw,28px); } .smpage .nm{ font-family:var(--f-display); font-weight:600; font-size:clamp(14px,1.5vw,18px); color:var(--link); }
+  .smpage .ds{ font-family:var(--f-mono); font-size:clamp(10.5px,1vw,12.5px); color:var(--muted); line-height:1.4; }
+
+  /* ---------- requirement cards ---------- */
+  .semgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(13px,1.8vw,22px); margin-top:clamp(14px,2vw,26px); }
+  .semgrid.two{ grid-template-columns:1fr 1fr; }
+  @media (max-width:860px){ .semgrid,.semgrid.two{ grid-template-columns:1fr; } }
+  .semcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(15px,1.9vw,24px); background:var(--card); display:flex; flex-direction:column; gap:10px; }
+  .semcard.best{ border-color:var(--link); box-shadow:5px 6px 0 var(--link); }
+  .semcard .tg{ font-family:var(--f-display); font-weight:600; font-size:clamp(15px,1.7vw,21px); color:var(--link); }
+  .semcard .tg .em{ margin-right:6px; }
+  .semcard .tg .by{ color:var(--muted); font-size:.72em; font-family:var(--f-mono); }
+  .ck{ list-style:none; margin:0; padding:0; display:grid; gap:clamp(6px,.9vw,10px); }
+  .ck li{ display:grid; grid-template-columns:auto 1fr; gap:9px; align-items:baseline; font-size:clamp(12.5px,1.3vw,16px); line-height:1.4; color:var(--ink); }
+  .ck li::before{ content:"✓"; color:var(--link); font-weight:700; font-family:var(--f-mono); font-size:.9em; }
+  .ck li b{ color:var(--visited); }
+  .ck li code{ font-family:var(--f-mono); font-size:.84em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 5px; border-radius:5px; }
+
+  /* ---------- console / js block ---------- */
+  .snippet{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; background:var(--card); box-shadow:5px 6px 0 rgba(0,0,0,.12); }
+  .snippet .bar{ display:flex; align-items:center; gap:8px; padding:8px 13px; background:var(--chrome); border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .snippet .bar .fdot{ width:9px; height:9px; border-radius:50%; border:1.2px solid var(--ink); }
+  .snippet pre{ margin:0; padding:clamp(14px,1.7vw,22px); overflow-x:auto; font-family:var(--f-mono); font-size:clamp(12.5px,1.3vw,17px); line-height:1.7; color:var(--ink); }
+  .kw{ color:var(--active); } .str{ color:var(--visited); } .fn{ color:var(--link); } .cm{ color:var(--muted); font-style:italic; } .op{ color:var(--muted); }
+
+  /* ---------- grading rubric ---------- */
+  .rubric{ display:grid; gap:clamp(7px,1vw,11px); margin-top:clamp(14px,2vw,24px); }
+  .rrow{ display:grid; grid-template-columns:minmax(120px,38%) 1fr auto; align-items:center; gap:clamp(10px,1.6vw,20px); }
+  .rrow .rl{ font-size:clamp(12.5px,1.35vw,17px); color:var(--ink); line-height:1.25; }
+  .rbar{ height:clamp(12px,1.5vw,16px); background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .rbar span{ display:block; height:100%; background:var(--link); border-radius:999px; }
+  .rrow .rp{ font-family:var(--f-mono); font-weight:700; color:var(--link); font-size:clamp(13px,1.4vw,18px); min-width:2.4ch; text-align:right; }
+  .rtotal{ display:flex; justify-content:flex-end; gap:10px; align-items:baseline; margin-top:clamp(10px,1.4vw,16px);
+    font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.4vw,18px); }
+  .rtotal b{ color:var(--ink); font-family:var(--f-display); font-size:1.3em; }
+
+  /* ---------- checklist (submission) ---------- */
+  .chk{ list-style:none; margin:clamp(10px,1.6vw,20px) 0 0; padding:0; display:grid; gap:clamp(11px,1.6vw,18px); max-width:70ch; }
+  .chk li{ display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:start; font-size:clamp(14px,1.5vw,20px); line-height:1.4; }
+  .chk .box{ width:20px; height:20px; border:1.6px solid var(--link); border-radius:5px; margin-top:2px; position:relative; }
+  .chk .box::after{ content:"✓"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--link); font-weight:700; font-size:14px; font-family:var(--f-mono); }
+  .chk b{ color:var(--visited); }
+  .chk .sub{ display:block; color:var(--muted); font-size:.8em; margin-top:3px; line-height:1.5; }
+
+  /* ---------- bonus chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(9px,1.2vw,15px); margin-top:clamp(16px,2.4vw,30px); max-width:82ch; }
+  .chip{ font-family:var(--f-mono); font-size:clamp(13px,1.35vw,18px); padding:clamp(9px,1.1vw,14px) clamp(13px,1.5vw,20px);
+    border:1.5px solid var(--ink); border-radius:12px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); display:flex; align-items:center; gap:9px; }
+  .chip .em{ font-size:1.15em; }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .recapchips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,13px); margin-top:clamp(16px,2.2vw,28px); max-width:86ch; }
+  .recapchips .rc{ font-family:var(--f-mono); font-size:clamp(13px,1.3vw,18px); padding:clamp(7px,.9vw,12px) clamp(11px,1.3vw,18px);
+    border:1.5px solid var(--ink); border-radius:999px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+  .recapchips .rc.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .recapchips .rc.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .closing .next{ margin-top:clamp(18px,2.4vw,32px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- presentation list ---------- */
+  .hw ul{ margin:clamp(14px,2vw,24px) 0 0; padding-left:1.25em; display:grid; gap:clamp(8px,1.2vw,13px);
+    font-size:clamp(14px,1.5vw,20px); line-height:1.4; max-width:70ch; }
+  .hw ul b{ color:var(--visited); }
+
+  /* ---------- footer / controls ---------- */
+  .footer{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:9px 16px; background:var(--chrome);
+    border-top:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; } .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{ font-family:var(--f-mono); font-size:14px; line-height:1; width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink); border:1.4px solid var(--ink); border-radius:6px; }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40; font-family:var(--f-mono); font-size:11.5px;
+    color:var(--muted); background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px; box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px);
+    padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px;
+    min-height:110px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; } .progress .bar{ transition:none; }
+  }
+  @media (max-width:560px){ .chrome .brand{ display:none; } .footer .sect{ display:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Final project slideshow">
+
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-09</b>/final-project</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="final-project" data-section="cover">
+      <p class="doctype rise">🌐 <b>everything, together</b> — HTML · CSS · JS · WordPress · SEO · Analytics</p>
+      <h1 class="titlelink rise">Final Project<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>09</b></span>
+        <span class="duebadge">Due: April 30 / May 7</span>
+      </div>
+    </section>
+
+    <!-- 2 · THE GOAL -->
+    <section class="slide" data-slug="the-goal" data-section="the goal">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">01</span> / <span class="tag">the goal</span> --&gt;</p>
+      <h2 class="rise">Build a real website.</h2>
+      <p class="lead rise">Create a fully functional <em class="hl">five-page website or app</em> that showcases everything you've learned — HTML, CSS, JavaScript, and WordPress — with best-practice <em class="hl2">SEO &amp; Analytics</em>.</p>
+      <p class="lead muted rise">This simulates building a real-world site: rich media, a working contact form, clean code structure, accessibility, and analytics integration.</p>
+      <p class="talk rise"><b>// meta note</b> — this very slideshow uses almost every technique on the list. So can you.</p>
+    </section>
+
+    <!-- 3 · PAGE STRUCTURE -->
+    <section class="slide" data-slug="page-structure" data-section="5 pages">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">02</span> / <span class="tag">page structure</span> --&gt;</p>
+      <h2 class="rise">At least five pages.</h2>
+      <div class="sitemap rise">
+        <div class="smnav">
+          <span class="logo">yoursite</span>
+          <span class="nl active">Home</span><span class="nl">About</span><span class="nl">Gallery</span><span class="nl">Blog</span><span class="nl">Contact</span>
+        </div>
+        <div class="smpages">
+          <div class="smpage"><span class="em">🏠</span><span class="nm">Home</span><span class="ds">landing &amp; intro</span></div>
+          <div class="smpage"><span class="em">👤</span><span class="nm">About</span><span class="ds">who you are</span></div>
+          <div class="smpage"><span class="em">🖼️</span><span class="nm">Gallery</span><span class="ds">media / images</span></div>
+          <div class="smpage"><span class="em">📝</span><span class="nm">Blog</span><span class="ds">posts / projects</span></div>
+          <div class="smpage"><span class="em">✉️</span><span class="nm">Contact</span><span class="ds">form + links</span></div>
+        </div>
+      </div>
+      <p class="caption rise">Five pages — separate <b>or</b> a one-page scroll. Every page needs a consistent <b>navigation menu</b> and a <b>footer</b> (copyright + privacy/terms links).</p>
+    </section>
+
+    <!-- 4 · HTML REQUIREMENTS -->
+    <section class="slide" data-slug="html-requirements" data-section="HTML">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">03</span> / <span class="tag">HTML content requirements</span> --&gt;</p>
+      <h2 class="rise">Structure &amp; content.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">🔤</span>Typography &amp; formatting</span>
+          <ul class="ck">
+            <li>All six headings <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code></li>
+            <li>Paragraphs, <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, underline, <code>&lt;br&gt;</code></li>
+            <li>Styled hyperlinks with <b>hover &amp; visited</b> states</li>
+            <li>Ordered &amp; unordered <b>lists</b></li>
+          </ul>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🎬</span>Embeds &amp; external content</span>
+          <ul class="ck">
+            <li>At least one <b>iframe</b> — YouTube, Google Map, Spotify, CodePen, p5.js…</li>
+            <li>A <b>Google Font</b> via <code>&lt;link&gt;</code> or <code>@import</code></li>
+            <li><code>&lt;figure&gt;</code> + <code>&lt;figcaption&gt;</code> for an image or media</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · CSS REQUIREMENTS -->
+    <section class="slide" data-slug="css-requirements" data-section="CSS">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">04</span> / <span class="tag">CSS requirements</span> --&gt;</p>
+      <h2 class="rise">Style &amp; layout.</h2>
+      <div class="semgrid rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">🧱</span>Structure</span>
+          <ul class="ck">
+            <li>Internal <b>and</b> external stylesheets</li>
+            <li>Layout with <b>Flexbox / Grid</b> (or Bootstrap / Tailwind)</li>
+            <li><b>Media queries</b> — mobile, tablet, desktop</li>
+          </ul>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">✨</span>Details</span>
+          <ul class="ck">
+            <li>Custom <b>nav bar</b> (not default links)</li>
+            <li>Custom fonts &amp; typography</li>
+            <li>Styled <b>buttons</b> with hover</li>
+            <li>Link states: hover, visited, active</li>
+            <li>≥ 1 <b>animation or transition</b></li>
+          </ul>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">📦</span>Must include</span>
+          <ul class="ck">
+            <li>One <b>form</b></li>
+            <li>One <b>button</b></li>
+            <li>One <b>card-style</b> layout</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · JAVASCRIPT -->
+    <section class="slide" data-slug="javascript" data-section="JavaScript">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">05</span> / <span class="tag">functionality + JS</span> --&gt;</p>
+      <h2 class="rise">Sign your work in code.</h2>
+      <div class="cols2 rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Built by: Your Name'</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'GitHub: @yourusername'</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Contact: you@email.com'</span>);</pre>
+        </div>
+        <div>
+          <p class="lead" style="margin-top:0">Use JavaScript in at least one place: <code class="ic">console.log</code> your <em class="hl">name</em>, <em class="hl">GitHub username</em>, and <em class="hl">contact info</em>…</p>
+          <p class="caption">…so nerds like me know it's <b>you</b> who coded the site. 😎 (Bonus points for doing more with JS, of course.)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · SEO & ACCESSIBILITY -->
+    <section class="slide" data-slug="seo-accessibility" data-section="SEO & a11y">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">06</span> / <span class="tag">SEO + accessibility</span> --&gt;</p>
+      <h2 class="rise">Findable &amp; usable.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">🔍</span>SEO basics</span>
+          <ul class="ck">
+            <li><code>&lt;title&gt;</code>, <code>&lt;meta description&gt;</code>, <code>&lt;meta charset&gt;</code> on <b>every page</b></li>
+            <li>Optimize &amp; compress media for page speed</li>
+            <li>Sitemap / index page <span style="color:var(--muted)">(optional)</span></li>
+          </ul>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">♿</span>Accessibility</span>
+          <ul class="ck">
+            <li>Meaningful <b>alt text</b> on every image</li>
+            <li>Headings in proper order — <b>no skipping levels</b></li>
+            <li>Semantic HTML throughout</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · ANALYTICS -->
+    <section class="slide" data-slug="google-analytics" data-section="analytics">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">07</span> / <span class="tag">Google Analytics</span> --&gt;</p>
+      <h2 class="rise">Measure the traffic.</h2>
+      <p class="lead rise">Set up and embed a <em class="hl">Google Analytics 4</em> tracking code — and make sure it appears on <em class="hl2">every page</em>.</p>
+      <p class="caption rise">You'll submit a <b>screenshot of your Analytics dashboard</b> (or share access with Max) as proof it's working.</p>
+      <p class="talk rise"><b>// why</b> — analytics is how real sites learn who visits, what they read, and what to improve.</p>
+    </section>
+
+    <!-- 9 · CONTACT PAGE -->
+    <section class="slide" data-slug="contact-page" data-section="contact">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">08</span> / <span class="tag">contact page</span> --&gt;</p>
+      <h2 class="rise">A working contact form.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">✉️</span>The form</span>
+          <ul class="ck">
+            <li>Fields for <b>name</b>, <b>email</b>, and <b>message</b></li>
+            <li>A styled <b>submit</b> button</li>
+            <li>No backend? Use <b>Formspree</b>, <b>Netlify Forms</b>, or <b>W3Forms</b></li>
+          </ul>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🔗</span>Alternate contact</span>
+          <ul class="ck">
+            <li>An email link</li>
+            <li>Social links</li>
+            <li>Anything else people can reach you by</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · TECH STACK -->
+    <section class="slide" data-slug="tech-stack" data-section="tech stack">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">09</span> / <span class="tag">two ways to build it</span> --&gt;</p>
+      <h2 class="rise">Pick your path.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard best">
+          <span class="tg"><span class="em">🔹</span>Option A — Custom Code</span>
+          <ul class="ck">
+            <li>Built with <b>HTML, CSS &amp; JavaScript</b></li>
+            <li>Host on <b>GitHub Pages</b> or <b>Netlify</b></li>
+            <li>Include a <code>readme.md</code> about your project</li>
+          </ul>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🔹</span>Option B — WordPress</span>
+          <ul class="ck">
+            <li>Custom theme or a builder like <b>Elementor</b></li>
+            <li>Custom <b>CSS overrides</b></li>
+            <li>Plugins for SEO, forms, analytics, layout</li>
+            <li>Hosted at a <b>URL we can visit</b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · BONUS -->
+    <section class="slide" data-slug="bonus" data-section="bonus (+10)">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">10</span> / <span class="tag">bonus challenges · up to +10</span> --&gt;</p>
+      <h2 class="rise">Go the extra mile.</h2>
+      <div class="chips rise">
+        <span class="chip b"><span class="em">🌓</span> Dark / light mode toggle</span>
+        <span class="chip p"><span class="em">🖼️</span> Slideshow or lightbox</span>
+        <span class="chip b"><span class="em">🎨</span> CSS variables for theming</span>
+        <span class="chip p"><span class="em">🚧</span> Custom 404 page</span>
+        <span class="chip"><span class="em">⭐</span> Custom favicon</span>
+      </div>
+      <p class="talk rise"><b>// psst</b> — this slideshow does the dark/light theme, a slideshow, CSS variables, and a favicon. Peek at the source for ideas.</p>
+    </section>
+
+    <!-- 12 · GRADING -->
+    <section class="slide" data-slug="grading" data-section="rubric">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">11</span> / <span class="tag">grading breakdown · 100 pts</span> --&gt;</p>
+      <h2 class="rise">How it's scored.</h2>
+      <div class="rubric rise">
+        <div class="rrow"><span class="rl">HTML — structure, tags, syntax</span><div class="rbar"><span style="width:100%"></span></div><span class="rp">15</span></div>
+        <div class="rrow"><span class="rl">CSS styling &amp; responsive design</span><div class="rbar"><span style="width:100%"></span></div><span class="rp">15</span></div>
+        <div class="rrow"><span class="rl">JavaScript functionality</span><div class="rbar"><span style="width:67%"></span></div><span class="rp">10</span></div>
+        <div class="rrow"><span class="rl">Contact form (styled + functional)</span><div class="rbar"><span style="width:67%"></span></div><span class="rp">10</span></div>
+        <div class="rrow"><span class="rl">Embedded media &amp; iframe</span><div class="rbar"><span style="width:67%"></span></div><span class="rp">10</span></div>
+        <div class="rrow"><span class="rl">Google Analytics integration</span><div class="rbar"><span style="width:67%"></span></div><span class="rp">10</span></div>
+        <div class="rrow"><span class="rl">Semantic HTML + accessibility</span><div class="rbar"><span style="width:67%"></span></div><span class="rp">10</span></div>
+        <div class="rrow"><span class="rl">Typography: headings, fonts, lists</span><div class="rbar"><span style="width:67%"></span></div><span class="rp">10</span></div>
+        <div class="rrow"><span class="rl">Completeness &amp; presentation</span><div class="rbar"><span style="width:67%"></span></div><span class="rp">10</span></div>
+      </div>
+      <div class="rtotal rise">total <b>100</b> points</div>
+    </section>
+
+    <!-- 13 · SUBMISSION -->
+    <section class="slide" data-slug="submission" data-section="submit">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">12</span> / <span class="tag">submission checklist</span> --&gt;</p>
+      <h2 class="rise">What to hand in.</h2>
+      <ul class="chk rise">
+        <li><span class="box"></span><span><b>Live URL</b> — GitHub Pages, Netlify, or hosted WordPress site.</span></li>
+        <li><span class="box"></span><span><b>Full project folder</b> — your code files or WordPress export.</span></li>
+        <li><span class="box"></span><span><b>Short reflection</b> (2–3 paragraphs)<span class="sub">what you built · what you're most proud of · what was hard &amp; how you solved it</span></span></li>
+        <li><span class="box"></span><span><b>Analytics screenshot</b> — showing your dashboard, or share access with Max.</span></li>
+      </ul>
+    </section>
+
+    <!-- 14 · PRESENTATION -->
+    <section class="slide" data-slug="presentation" data-section="present">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">13</span> / <span class="tag">final presentation · 5–7 min</span> --&gt;</p>
+      <h2 class="rise">Show the class.</h2>
+      <div class="hw rise">
+        <ul>
+          <li>A <b>live walkthrough</b> of your site.</li>
+          <li>Your <b>inspiration &amp; concept</b>.</li>
+          <li>The <b>HTML, CSS &amp; JS</b> features you used — media, responsive design, SEO &amp; analytics.</li>
+          <li>A quick <b>test on phone &amp; another browser</b>.</li>
+          <li>One feature you're <b>especially proud of</b>.</li>
+          <li>One <b>challenge</b> and how you solved it, plus <b>future improvements</b>.</li>
+        </ul>
+      </div>
+      <p class="caption rise">Have your <b>live site</b> open and your <b>code ready</b> to reference.</p>
+    </section>
+
+    <!-- 15 · CLOSING -->
+    <section class="slide closing" data-slug="good-luck" data-section="wrap-up">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">you've learned all of this</span> --&gt;</p>
+      <h2 class="rise">Now put it together.</h2>
+      <div class="recapchips rise">
+        <span class="rc b">HTML</span>
+        <span class="rc b">CSS</span>
+        <span class="rc p">responsive</span>
+        <span class="rc p">JavaScript</span>
+        <span class="rc">WordPress</span>
+        <span class="rc">SEO</span>
+        <span class="rc">Analytics</span>
+        <span class="rc b">a real, live site</span>
+      </div>
+      <p class="next rise">&lt;/course&gt; · &nbsp;<b>Due: April 30 / May 7.</b> &nbsp;You've got this. 🚀</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">15</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, i = 0;
+  var bar=document.getElementById('bar'), cur=document.getElementById('cur'), totalEl=document.getElementById('total');
+  var sectName=document.getElementById('sectName'), urlEl=document.getElementById('url');
+  var hint=document.getElementById('hint'), overview=document.getElementById('overview'), ovgrid=document.getElementById('ovgrid');
+  totalEl.textContent = total;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+
+  function render(){
+    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+    var s=slides[i];
+    cur.textContent=pad(i+1);
+    bar.style.width=((i+1)/total*100)+'%';
+    sectName.textContent=s.getAttribute('data-section')||'';
+    urlEl.innerHTML='localhost:1989/<b>week-09</b>/'+(s.getAttribute('data-slug')||'');
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+    Array.prototype.forEach.call(ovgrid.children, function(c,idx){ c.classList.toggle('current', idx===i); });
+  }
+  function go(n){ var nx=Math.max(0,Math.min(total-1,n)); if(nx===i) return; i=nx; render(); }
+  function nextSlide(){ go(i+1); } function prevSlide(){ go(i-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(overview.classList.contains('open')){ if(k==='Escape'||k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); } return; }
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){ nextSlide(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){ prevSlide(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); e.preventDefault(); }
+    else if(k==='End'){ go(total-1); e.preventDefault(); }
+    else if(k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); }
+    else if(k==='f'||k==='F'){ toggleFullscreen(); e.preventDefault(); }
+    else if(k>='1'&&k<='9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(e.target.closest('a, button')) return;
+    var x=e.clientX/window.innerWidth;
+    if(x>0.35) nextSlide(); else prevSlide();
+  });
+
+  var tx=0,ty=0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?nextSlide():prevSlide(); }
+  }, {passive:true});
+
+  var fsBtn=document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el=document.documentElement;
+    if(!fsElement()){
+      var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+      if(req){ var r=req.call(el); if(r&&r.catch) r.catch(function(){}); }
+    } else {
+      var exit=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;
+      if(exit){ var e2=exit.call(document); if(e2&&e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on=!!fsElement();
+    if(fsBtn){ fsBtn.textContent=on?'⤢':'⛶'; fsBtn.title=on?'Exit fullscreen (F)':'Fullscreen (F)'; }
+  }
+  if(fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  slides.forEach(function(s,idx){
+    var b=document.createElement('button');
+    b.className='ovcard';
+    var title=(s.querySelector('h1, h2')||{}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML='<span class="oi">'+pad(idx+1)+' · '+(s.getAttribute('data-section')||'')+'</span>'+
+                '<span class="ot">'+title.replace(/\s+/g,' ').trim()+'</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  setTimeout(function(){ hint.style.opacity='0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity='1'; clearTimeout(hint._t);
+    hint._t=setTimeout(function(){ hint.style.opacity='0'; }, 2600);
+  });
+
+  var start=parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i=start-1;
+  render();
+})();
+</script>
+</body>
+</html>
