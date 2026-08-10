@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 03 · Introduction to CSS — ICOM101 / MTEC617</title>
+<meta name="description" content="Week 3 slideshow for Intro to Web Development (ICOM101 / MTEC617), CalArts — Introduction to CSS." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 03 · INTRODUCTION TO CSS
+     Same identity as Weeks 01–02 — the unstyled-hyperlink palette,
+     the "view source" browser frame, code → rendered-output panels.
+     New signatures: an annotated CSS ruleset, and a box-model diagram.
+     ============================================================ */
+
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  /* ---------- deck frame ---------- */
+  .deck{ position:fixed; inset:clamp(10px,2.4vw,30px); background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); display:flex; flex-direction:column; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; } .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{ position:absolute; inset:0; padding:clamp(22px,3.8vw,60px); display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s; overflow:auto; }
+  .slide.active{ opacity:1; visibility:visible; transform:none; transition:opacity .55s var(--ease), transform .55s var(--ease); z-index:2; }
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; } .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; } .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; } .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,15px); color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(12px,1.7vw,22px); }
+  .eyebrow .num{ color:var(--active); } .eyebrow .tag{ color:var(--link); }
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(28px,4.6vw,58px); }
+  .lead{ font-size:clamp(16px,1.75vw,23px); line-height:1.45; max-width:58ch; color:var(--ink); margin:clamp(12px,1.8vw,24px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+  code.ic{ font-family:var(--f-mono); font-size:.9em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  .talk{ margin-top:clamp(14px,2vw,26px); border-left:3px solid var(--visited); padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.05vw,14.5px); color:var(--muted); line-height:1.7; max-width:70ch; }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98; font-size:clamp(42px,8.2vw,116px);
+    color:var(--link); text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px); text-underline-offset:clamp(6px,1.2vw,16px); }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- code snippet + rendered preview ---------- */
+  .codepair{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.2vw,30px); margin-top:clamp(14px,2vw,26px); align-items:start; }
+  .codepair.solo{ grid-template-columns:1fr; max-width:70ch; }
+  @media (max-width:860px){ .codepair{ grid-template-columns:1fr; } }
+
+  .snippet{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; background:var(--card); box-shadow:5px 6px 0 rgba(0,0,0,.12); }
+  .snippet .bar{ display:flex; align-items:center; gap:8px; padding:8px 13px; background:var(--chrome); border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .snippet .bar .fdot{ width:9px; height:9px; border-radius:50%; border:1.2px solid var(--ink); }
+  .snippet pre{ margin:0; padding:clamp(14px,1.7vw,22px); overflow-x:auto; font-family:var(--f-mono);
+    font-size:clamp(13px,1.32vw,18px); line-height:1.7; color:var(--ink); }
+  /* syntax tokens (HTML + CSS) */
+  .t{ color:var(--link); }          /* html tags / brackets */
+  .att{ color:var(--active); }      /* html attribute names */
+  .sel{ color:var(--link); }        /* css selector */
+  .prop{ color:var(--active); }     /* css property */
+  .val{ color:var(--visited); }     /* values (attr + css) */
+  .cm{ color:var(--muted); font-style:italic; } /* comments */
+  .pun{ color:var(--muted); }       /* punctuation / braces */
+
+  /* rendered "browser output" — always reads as a real webpage, light in both themes */
+  .preview{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; box-shadow:5px 6px 0 var(--link); }
+  .preview .pv-bar{ display:flex; align-items:center; gap:7px; padding:8px 13px; background:#e9e9ef; border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:11.5px; color:#7a7a86; }
+  .preview .pv-bar .d{ width:9px; height:9px; border-radius:50%; background:#c7c7d0; }
+  .preview .pv-body{ background:#ffffff; color:#1a1a1f; padding:clamp(16px,2vw,26px); font-family:var(--f-body);
+    font-size:clamp(14px,1.4vw,18px); line-height:1.5; min-height:70px; }
+  .preview .pv-body :is(h1,h2,h3){ font-family:var(--f-display); margin:.15em 0; line-height:1.1; color:#111; }
+  .preview .pv-body p{ margin:.35em 0; }
+  .caption{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:12px; line-height:1.55; max-width:62ch; }
+  .caption b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- CSS ruleset anatomy ---------- */
+  .rsdiagram{ font-family:var(--f-mono); font-weight:500; font-size:clamp(20px,3.4vw,42px); line-height:1.55; }
+  .rsdiagram .l1 .sel{ color:var(--link); } .rsdiagram .prop{ color:var(--active); } .rsdiagram .val{ color:var(--visited); }
+  .deflist{ display:grid; gap:clamp(11px,1.5vw,18px); }
+  .deflist .d{ display:grid; grid-template-columns:minmax(120px,auto) 1fr; gap:clamp(12px,1.6vw,22px); align-items:baseline;
+    border-bottom:1.3px dashed var(--line); padding-bottom:clamp(10px,1.4vw,16px); }
+  .deflist .d:last-child{ border-bottom:0; }
+  .deflist .k{ font-family:var(--f-mono); font-size:clamp(13px,1.35vw,18px); font-weight:500; }
+  .deflist .k.blue{ color:var(--link); } .deflist .k.red{ color:var(--active); } .deflist .k.purple{ color:var(--visited); } .deflist .k.ink{ color:var(--ink); }
+  .deflist .v{ font-size:clamp(13.5px,1.4vw,18px); line-height:1.4; color:var(--ink); }
+
+  /* ---------- box model diagram ---------- */
+  .boxmodel{ display:flex; justify-content:center; margin-top:clamp(10px,1.6vw,20px); }
+  .bm{ font-family:var(--f-mono); text-align:center; }
+  .bm-layer{ position:relative; border-radius:8px; }
+  .bm-label{ position:absolute; top:6px; left:10px; font-size:clamp(10.5px,1.05vw,13px); letter-spacing:.02em; }
+  .bm-margin{ background:color-mix(in srgb, var(--active) 16%, transparent); padding:clamp(28px,3.6vw,46px) clamp(30px,4vw,58px) clamp(24px,3vw,38px); }
+  .bm-margin>.bm-label{ color:var(--active); }
+  .bm-border{ border:clamp(6px,.9vw,11px) solid var(--ink); background:var(--card); }
+  .bm-padding{ background:color-mix(in srgb, var(--link) 16%, transparent); padding:clamp(26px,3.4vw,44px) clamp(28px,3.6vw,52px) clamp(22px,2.8vw,36px); }
+  .bm-padding>.bm-label{ color:var(--link); }
+  .bm-content{ background:var(--ink); color:var(--card); padding:clamp(18px,2.6vw,34px) clamp(24px,3.6vw,52px); border-radius:4px;
+    font-size:clamp(13px,1.5vw,20px); font-weight:500; letter-spacing:.02em; }
+  .bmlegend{ margin-top:clamp(14px,2vw,24px); font-family:var(--f-mono); font-size:clamp(12px,1.15vw,15px); color:var(--muted);
+    display:flex; flex-wrap:wrap; gap:8px 20px; justify-content:center; }
+  .bmlegend b{ font-weight:500; } .bmlegend .c{ color:var(--active); } .bmlegend .p{ color:var(--link); } .bmlegend .k{ color:var(--ink); }
+
+  /* ---------- three-up cards ---------- */
+  .semgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2vw,26px); margin-top:clamp(14px,2vw,26px); }
+  @media (max-width:860px){ .semgrid{ grid-template-columns:1fr; } }
+  .semcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(16px,2vw,26px); background:var(--card); display:flex; flex-direction:column; gap:10px; }
+  .semcard.best{ border-color:var(--link); box-shadow:5px 6px 0 var(--link); }
+  .semcard .tg{ font-family:var(--f-mono); font-size:clamp(14px,1.6vw,20px); color:var(--link); font-weight:500; }
+  .semcard .mini{ font-family:var(--f-mono); font-size:clamp(11.5px,1.15vw,14px); color:var(--ink); background:color-mix(in srgb, var(--ink) 6%, transparent);
+    border:1.2px solid var(--line); border-radius:6px; padding:8px 10px; line-height:1.5; overflow-x:auto; }
+  .semcard .mini .prop{ color:var(--active); } .semcard .mini .val{ color:var(--visited); } .semcard .mini .sel,.semcard .mini .t{ color:var(--link); }
+  .semcard p{ margin:0; font-size:clamp(12.5px,1.3vw,16px); line-height:1.45; color:var(--muted); }
+  .semcard .verdict{ margin-top:auto; font-family:var(--f-mono); font-size:clamp(11.5px,1.1vw,14px); font-weight:500; }
+  .semcard .verdict.no{ color:var(--muted); } .semcard .verdict.yes{ color:var(--link); }
+
+  /* ---------- recap chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,13px); margin-top:clamp(16px,2.2vw,28px); max-width:84ch; }
+  .chip{ font-family:var(--f-mono); font-size:clamp(13px,1.3vw,18px); padding:clamp(7px,.9vw,12px) clamp(11px,1.3vw,18px);
+    border:1.5px solid var(--ink); border-radius:999px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .closing .next{ margin-top:clamp(18px,2.4vw,32px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- homework ---------- */
+  .hw ul{ margin:clamp(14px,2vw,24px) 0 0; padding-left:1.25em; display:grid; gap:clamp(9px,1.3vw,14px);
+    font-size:clamp(14.5px,1.55vw,21px); line-height:1.4; max-width:64ch; }
+  .hw ul b{ color:var(--visited); }
+  .hw .xc{ color:var(--active); font-family:var(--f-mono); font-size:.8em; border:1.3px solid var(--active); border-radius:999px; padding:1px 8px; margin-right:6px; }
+
+  /* ---------- footer / controls ---------- */
+  .footer{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:9px 16px; background:var(--chrome);
+    border-top:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; } .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{ font-family:var(--f-mono); font-size:14px; line-height:1; width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink); border:1.4px solid var(--ink); border-radius:6px; }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40; font-family:var(--f-mono); font-size:11.5px;
+    color:var(--muted); background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px; box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px);
+    padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px;
+    min-height:110px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; } .progress .bar{ transition:none; }
+  }
+  @media (max-width:560px){ .chrome .brand{ display:none; } .footer .sect{ display:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Week 3 slideshow">
+
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-03</b>/introduction-to-css</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="introduction-to-css" data-section="cover">
+      <p class="doctype rise">&lt;style&gt; <b>/* now we make it beautiful */</b> &lt;/style&gt;</p>
+      <h1 class="titlelink rise">Introduction<br>to CSS<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>03</b></span>
+        <span>CalArts <b>· Spring ’23</b></span>
+      </div>
+    </section>
+
+    <!-- 2 · WHAT IS CSS -->
+    <section class="slide" data-slug="what-is-css" data-section="what is css">
+      <p class="eyebrow rise">&lt;!-- <span class="num">01</span> / <span class="tag">what is CSS?</span> --&gt;</p>
+      <h2 class="rise">HTML builds it.<br>CSS makes it beautiful.</h2>
+      <p class="lead rise">HTML is the structure of every page — but on its own it's plain. <em class="hl">Cascading Style Sheets</em> is the language we use to <em class="hl2">style</em> that structure.</p>
+      <p class="lead muted rise">Colors, fonts, sizes, images, spacing, positioning — if it's about how a page <i>looks</i>, CSS is the tool for the job.</p>
+    </section>
+
+    <!-- 3 · CSS ANATOMY -->
+    <section class="slide" data-slug="css-anatomy" data-section="css anatomy">
+      <p class="eyebrow rise">&lt;!-- <span class="num">02</span> / <span class="tag">the anatomy of a ruleset</span> --&gt;</p>
+      <h2 class="rise">One rule, five parts.</h2>
+      <div class="codepair rise">
+        <div class="rsdiagram">
+<div class="l1"><span class="sel">h1</span> <span class="pun">{</span></div>
+<div>&nbsp;&nbsp;<span class="prop">color</span><span class="pun">:</span> <span class="val">blue</span><span class="pun">;</span></div>
+<div><span class="pun">}</span></div>
+        </div>
+        <div class="deflist">
+          <div class="d"><span class="k blue">selector</span><span class="v">targets the element to style — here, every <code class="ic">&lt;h1&gt;</code>.</span></div>
+          <div class="d"><span class="k ink">declaration block</span><span class="v">everything inside the curly braces <code class="ic">{ }</code>.</span></div>
+          <div class="d"><span class="k ink">declaration</span><span class="v">one <b>property: value</b> pair — <code class="ic">color: blue;</code></span></div>
+          <div class="d"><span class="k red">property</span><span class="v">the characteristic you're changing — <code class="ic">color</code>.</span></div>
+          <div class="d"><span class="k purple">value</span><span class="v">what you set it to — <code class="ic">blue</code>. End with a <b>semicolon</b>.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · THREE PLACES TO PUT CSS -->
+    <section class="slide" data-slug="where-css-goes" data-section="where css goes">
+      <p class="eyebrow rise">&lt;!-- <span class="num">03</span> / <span class="tag">three places to write CSS</span> --&gt;</p>
+      <h2 class="rise">Inline · Internal · External.</h2>
+      <div class="semgrid rise">
+        <div class="semcard">
+          <span class="tg">1 · Inline</span>
+          <div class="mini"><span class="t">&lt;p</span> <span class="att">style</span>=<span class="val">"color:red;"</span><span class="t">&gt;</span>Hi<span class="t">&lt;/p&gt;</span></div>
+          <p>A <code class="ic">style</code> attribute right on the tag. Multiple styles? Separate with semicolons.</p>
+          <span class="verdict no">quick — but rarely used</span>
+        </div>
+        <div class="semcard">
+          <span class="tg">2 · Internal</span>
+          <div class="mini"><span class="t">&lt;style&gt;</span> <span class="sel">p</span> { <span class="prop">color</span>:<span class="val">red</span>; } <span class="t">&lt;/style&gt;</span></div>
+          <p>A <code class="ic">&lt;style&gt;</code> block inside <code class="ic">&lt;head&gt;</code>. Styles the whole page at once.</p>
+          <span class="verdict no">better — still not best</span>
+        </div>
+        <div class="semcard best">
+          <span class="tg">3 · External</span>
+          <div class="mini"><span class="cm">/* style.css */</span><br><span class="sel">p</span> { <span class="prop">color</span>:<span class="val">red</span>; }</div>
+          <p>A separate <code class="ic">.css</code> file. HTML stays clean; CSS stays maintainable.</p>
+          <span class="verdict yes">✓ best practice</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · LINKING CSS -->
+    <section class="slide" data-slug="linking-css" data-section="linking a stylesheet">
+      <p class="eyebrow rise">&lt;!-- <span class="num">04</span> / <span class="tag">linking an external stylesheet</span> --&gt;</p>
+      <h2 class="rise">Connect the two files.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> index.html — inside &lt;head&gt;</div>
+<pre><span class="cm">&lt;!-- from another folder / the web --&gt;</span>
+<span class="t">&lt;link</span> <span class="att">href</span>=<span class="val">"styles/style.css"</span>
+      <span class="att">rel</span>=<span class="val">"stylesheet"</span><span class="t">&gt;</span>
+
+<span class="cm">&lt;!-- same folder: a relative path --&gt;</span>
+<span class="t">&lt;link</span> <span class="att">href</span>=<span class="val">"./style.css"</span> <span class="att">rel</span>=<span class="val">"stylesheet"</span><span class="t">&gt;</span></pre>
+        </div>
+        <div>
+          <div class="deflist">
+            <div class="d"><span class="k red">href</span><span class="v">the path to the CSS file — a URL, or a relative path like <code class="ic">./style.css</code>.</span></div>
+            <div class="d"><span class="k red">rel</span><span class="v">the relationship — for a stylesheet, always <code class="ic">"stylesheet"</code>.</span></div>
+          </div>
+          <p class="caption"><code class="ic">&lt;link&gt;</code> lives in the <code class="ic">&lt;head&gt;</code> and is <b>self-closing</b>. Without it, the HTML can't find the CSS and no styles apply.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · THE BOX MODEL -->
+    <section class="slide" data-slug="the-box-model" data-section="the box model">
+      <p class="eyebrow rise">&lt;!-- <span class="num">05</span> / <span class="tag">the box model</span> --&gt;</p>
+      <h2 class="rise" style="text-align:center">Every element lives in a box.</h2>
+      <div class="boxmodel rise">
+        <div class="bm">
+          <div class="bm-layer bm-margin"><span class="bm-label">margin</span>
+            <div class="bm-layer bm-border">
+              <div class="bm-layer bm-padding"><span class="bm-label">padding</span>
+                <div class="bm-content">content</div>
+              </div>
+            </div>
+          </div>
+          <div class="bmlegend">
+            <span><b class="c">margin</b> — space outside</span>
+            <span><b class="k">border</b> — the frame</span>
+            <span><b class="p">padding</b> — space inside</span>
+            <span><b>content</b> — the text or image</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · HEIGHT & WIDTH -->
+    <section class="slide" data-slug="height-width" data-section="height & width">
+      <p class="eyebrow rise">&lt;!-- <span class="num">06</span> / <span class="tag">height &amp; width</span> --&gt;</p>
+      <h2 class="rise">Sizing the content.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">p</span> {
+  <span class="prop">height</span>: <span class="val">80px</span>;
+  <span class="prop">width</span>: <span class="val">240px</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body"><div style="height:80px;width:240px;background:#eef;border:1px dashed #99f;display:flex;align-items:center;justify-content:center;color:#334;font-family:monospace;font-size:13px">240 × 80 px</div></div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">px</code> means <b>pixels</b> — an exact size, the same on every device. Great for precision, but a pixel-width box that fills a laptop will overflow a phone.</p>
+    </section>
+
+    <!-- 8 · BORDERS -->
+    <section class="slide" data-slug="borders" data-section="borders">
+      <p class="eyebrow rise">&lt;!-- <span class="num">07</span> / <span class="tag">borders — a frame around the box</span> --&gt;</p>
+      <h2 class="rise">Width · style · color.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">p</span> {
+  <span class="prop">border</span>: <span class="val">3px solid coral</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body"><p style="border:3px solid coral;padding:8px 10px;margin:0">A paragraph with a coral border.</p></div>
+        </div>
+      </div>
+      <p class="caption rise">Three values in one line: <b>width</b> (px, or <code class="ic">thin/medium/thick</code>), <b>style</b> (<code class="ic">solid</code>, <code class="ic">dotted</code>, <code class="ic">none</code>…), and <b>color</b> (one of 140 named colors, or a code). Anything you skip uses its default.</p>
+    </section>
+
+    <!-- 9 · BORDER RADIUS -->
+    <section class="slide" data-slug="border-radius" data-section="border radius">
+      <p class="eyebrow rise">&lt;!-- <span class="num">08</span> / <span class="tag">border-radius — round the corners</span> --&gt;</p>
+      <h2 class="rise">Corners don't have to be square.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.card</span> {
+  <span class="prop">border</span>: <span class="val">3px solid blue</span>;
+  <span class="prop">border-radius</span>: <span class="val">12px</span>;
+}
+<span class="cm">/* a perfect circle: */</span>
+<span class="sel">.dot</span> { <span class="prop">border-radius</span>: <span class="val">50%</span>; }</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body" style="display:flex;gap:16px;align-items:center">
+            <div style="width:120px;height:64px;border:3px solid #1B10E6;border-radius:12px"></div>
+            <div style="width:64px;height:64px;border:3px solid #1B10E6;border-radius:50%"></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">Equal width &amp; height + <code class="ic">border-radius: 50%</code> makes a perfect circle.</p>
+    </section>
+
+    <!-- 10 · PADDING -->
+    <section class="slide" data-slug="padding" data-section="padding">
+      <p class="eyebrow rise">&lt;!-- <span class="num">09</span> / <span class="tag">padding — space inside</span> --&gt;</p>
+      <h2 class="rise">Room between content &amp; border.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.box</span> {
+  <span class="prop">border</span>: <span class="val">3px solid coral</span>;
+  <span class="prop">padding</span>: <span class="val">16px</span>;
+}
+<span class="cm">/* one side only: */</span>
+<span class="prop">padding-bottom</span>: <span class="val">16px</span>;</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body" style="display:flex;gap:14px;flex-wrap:wrap">
+            <span style="border:3px solid coral">no padding</span>
+            <span style="border:3px solid coral;padding:16px">16px padding</span>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">Padding is like the mat between a picture and its frame. Use <code class="ic">padding-top / -right / -bottom / -left</code> to target one side.</p>
+    </section>
+
+    <!-- 11 · MARGIN & CENTERING -->
+    <section class="slide" data-slug="margin" data-section="margin & centering">
+      <p class="eyebrow rise">&lt;!-- <span class="num">10</span> / <span class="tag">margin — space outside</span> --&gt;</p>
+      <h2 class="rise">Push other elements away.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">p</span> { <span class="prop">margin</span>: <span class="val">20px</span>; }
+
+<span class="cm">/* center a fixed-width box: */</span>
+<span class="sel">.headline</span> {
+  <span class="prop">width</span>: <span class="val">400px</span>;
+  <span class="prop">margin</span>: <span class="val">0 auto</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body" style="background:#f1f1f7">
+            <div style="width:60%;margin:0 auto;background:#fff;border:2px solid #1B10E6;padding:10px;text-align:center;font-family:monospace;font-size:13px">margin: 0 auto → centered</div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">margin: 0 auto</code> centers a block horizontally — the <b>0</b> sets top/bottom, <b>auto</b> splits the leftover space evenly. It only works if the element has a set <b>width</b>.</p>
+    </section>
+
+    <!-- 12 · MARGIN COLLAPSE -->
+    <section class="slide" data-slug="margin-collapse" data-section="margin collapse">
+      <p class="eyebrow rise">&lt;!-- <span class="num">11</span> / <span class="tag">a margin quirk</span> --&gt;</p>
+      <h2 class="rise">Vertical margins collapse.</h2>
+      <div class="semgrid rise" style="grid-template-columns:1fr 1fr">
+        <div class="semcard">
+          <span class="tg">↔ Horizontal — they add</span>
+          <p>Two side-by-side elements with <code class="ic">20px</code> margins sit <b>40px</b> apart. Left + right margins <b>sum</b>.</p>
+        </div>
+        <div class="semcard">
+          <span class="tg">↕ Vertical — they collapse</span>
+          <p>Stacked elements with <code class="ic">10px</code> and <code class="ic">30px</code> margins sit <b>30px</b> apart — the browser keeps the <b>larger</b>, not the sum.</p>
+        </div>
+      </div>
+      <p class="talk rise"><b>// remember</b> — padding never collapses. This surprises everyone the first time a gap is smaller than they expected.</p>
+    </section>
+
+    <!-- 13 · OVERFLOW -->
+    <section class="slide" data-slug="overflow" data-section="overflow">
+      <p class="eyebrow rise">&lt;!-- <span class="num">12</span> / <span class="tag">overflow — when content spills</span> --&gt;</p>
+      <h2 class="rise">What happens to what won't fit?</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.box</span> { <span class="prop">overflow</span>: <span class="val">scroll</span>; }</pre>
+          <div style="padding:0 clamp(14px,1.7vw,22px) clamp(14px,1.7vw,22px)">
+            <div class="deflist" style="gap:10px">
+              <div class="d"><span class="k purple">visible</span><span class="v">spills outside the box (the default).</span></div>
+              <div class="d"><span class="k purple">hidden</span><span class="v">the overflow is clipped and hidden.</span></div>
+              <div class="d"><span class="k purple">scroll</span><span class="v">adds a scrollbar to reach the rest.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> overflow: scroll</div>
+          <div class="pv-body"><div style="height:110px;width:100%;overflow:scroll;border:2px solid #1B10E6;padding:10px;font-size:14px">This box is short, but its content is long. Because overflow is set to scroll, a scrollbar appears so you can reach everything. Keep scrolling — there's more text down here than the box can show at once, so the browser hands you a scrollbar instead of hiding it or spilling it out.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · RESETTING DEFAULTS -->
+    <section class="slide" data-slug="resetting-defaults" data-section="the reset">
+      <p class="eyebrow rise">&lt;!-- <span class="num">13</span> / <span class="tag">start from a clean slate</span> --&gt;</p>
+      <h2 class="rise">Reset the browser's defaults.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css — the very first rule</div>
+<pre><span class="sel">*</span> {
+  <span class="prop">margin</span>: <span class="val">0</span>;
+  <span class="prop">padding</span>: <span class="val">0</span>;
+}</pre>
+        </div>
+        <div>
+          <p class="lead" style="margin-top:0">Every browser ships a hidden <em class="hl2">user-agent stylesheet</em> — its own defaults for margin, padding, and more. ("User agent" is just a fancy word for the browser.)</p>
+          <p class="caption">The <code class="ic">*</code> is the <b>universal selector</b> — it targets every element. This is often the first rule in an external stylesheet, so you build on a clean slate.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · FONT FAMILY -->
+    <section class="slide" data-slug="font-family" data-section="font family">
+      <p class="eyebrow rise">&lt;!-- <span class="num">14</span> / <span class="tag">font-family &amp; font stacks</span> --&gt;</p>
+      <h2 class="rise">Choosing a typeface.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">h1</span> {
+  <span class="prop">font-family</span>: <span class="val">Georgia, 'Times New Roman', serif</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> serif vs sans-serif</div>
+          <div class="pv-body">
+            <p style="font-family:Georgia,serif;font-size:22px;margin:0 0 6px">Serif — little feet on the letters</p>
+            <p style="font-family:Arial,sans-serif;font-size:22px;margin:0">Sans-serif — clean, no feet</p>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">A <b>font stack</b> lists fallbacks: the browser tries each in order until one is available, ending with a generic keyword (<code class="ic">serif</code> / <code class="ic">sans-serif</code>). Wrap multi-word names in quotes: <code class="ic">'Times New Roman'</code>.</p>
+    </section>
+
+    <!-- 16 · STYLING FONTS -->
+    <section class="slide" data-slug="styling-fonts" data-section="weight · style · case">
+      <p class="eyebrow rise">&lt;!-- <span class="num">15</span> / <span class="tag">weight, style &amp; transform</span> --&gt;</p>
+      <h2 class="rise">Bold, italic, uppercase.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="prop">font-weight</span>: <span class="val">700</span>;      <span class="cm">/* or: bold */</span>
+<span class="prop">font-style</span>: <span class="val">italic</span>;
+<span class="prop">text-transform</span>: <span class="val">uppercase</span>;</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body">
+            <p style="font-weight:700;margin:0 0 4px">font-weight: 700</p>
+            <p style="font-style:italic;margin:0 0 4px">font-style: italic</p>
+            <p style="text-transform:uppercase;margin:0">text-transform: uppercase</p>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">font-weight</code> takes keywords (<code class="ic">normal</code>, <code class="ic">bold</code>) or numbers <b>100–900</b> (400 = normal, 700 = bold). Not every font offers every weight.</p>
+    </section>
+
+    <!-- 17 · TEXT LAYOUT -->
+    <section class="slide" data-slug="text-layout" data-section="text layout">
+      <p class="eyebrow rise">&lt;!-- <span class="num">16</span> / <span class="tag">spacing, line-height &amp; alignment</span> --&gt;</p>
+      <h2 class="rise">Laying text out.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="prop">letter-spacing</span>: <span class="val">2px</span>;
+<span class="prop">word-spacing</span>: <span class="val">0.3em</span>;
+<span class="prop">line-height</span>: <span class="val">1.4</span>;
+<span class="prop">text-align</span>: <span class="val">center</span>;</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body">
+            <p style="letter-spacing:2px;margin:0 0 8px">Letter-spacing widens the gaps.</p>
+            <p style="line-height:1.7;text-align:center;margin:0">A centered paragraph with generous line-height, so the lines breathe as they wrap.</p>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">Prefer a <b>unitless</b> <code class="ic">line-height</code> (like <code class="ic">1.4</code>) — it scales with the font size automatically. Use <code class="ic">em</code> for spacing so it, too, tracks the type size.</p>
+    </section>
+
+    <!-- 18 · WEB FONTS -->
+    <section class="slide" data-slug="web-fonts" data-section="web fonts">
+      <p class="eyebrow rise">&lt;!-- <span class="num">17</span> / <span class="tag">web fonts — beyond the safe list</span> --&gt;</p>
+      <h2 class="rise">Borrow any font from the web.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> index.html — inside &lt;head&gt;</div>
+<pre><span class="cm">&lt;!-- 1. link the font (Google Fonts) --&gt;</span>
+<span class="t">&lt;link</span> <span class="att">href</span>=<span class="val">"…fonts.googleapis.com/…Roboto"</span>
+      <span class="att">rel</span>=<span class="val">"stylesheet"</span><span class="t">&gt;</span>
+
+<span class="cm">/* 2. then use it in your CSS */</span>
+<span class="sel">h1</span> { <span class="prop">font-family</span>: <span class="val">'Roboto', sans-serif</span>; }</pre>
+        </div>
+        <div>
+          <p class="lead" style="margin-top:0">Web-safe fonts are reliable but limited. <em class="hl">Web fonts</em> — from free services like Google Fonts and Adobe Fonts — let you use almost any typeface.</p>
+          <p class="caption">Pick a font &amp; its styles on the service, copy the generated <code class="ic">&lt;link&gt;</code> into your <code class="ic">&lt;head&gt;</code>, then name it in <code class="ic">font-family</code>. <b>Extra-credit territory for the homework.</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 · RECAP -->
+    <section class="slide" data-slug="recap" data-section="recap">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">what we learned today</span> --&gt;</p>
+      <h2 class="rise">Your CSS toolbox.</h2>
+      <div class="chips rise">
+        <span class="chip b">ruleset</span>
+        <span class="chip b">selector</span>
+        <span class="chip">inline / internal</span>
+        <span class="chip b">external + &lt;link&gt;</span>
+        <span class="chip p">box model</span>
+        <span class="chip">margin</span>
+        <span class="chip">border</span>
+        <span class="chip">padding</span>
+        <span class="chip">border-radius</span>
+        <span class="chip">overflow</span>
+        <span class="chip b">* reset</span>
+        <span class="chip p">font-family</span>
+        <span class="chip p">font-weight / style</span>
+        <span class="chip">line-height / align</span>
+        <span class="chip b">web fonts</span>
+      </div>
+      <p class="talk rise"><b>// the big idea</b> — external stylesheets are best practice: keep HTML for structure, CSS for style.</p>
+    </section>
+
+    <!-- 20 · HOMEWORK -->
+    <section class="slide closing" data-slug="homework" data-section="homework">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">homework · week 3</span> --&gt;</p>
+      <h2 class="rise">Style your project.</h2>
+      <div class="hw rise">
+        <ul>
+          <li>Fork last week's assignment (or start a fresh project).</li>
+          <li>Add CSS to style your HTML — use the <b>box model</b>: padding, margin, or a border.</li>
+          <li>Change an element's <b>color</b> or <b>background-color</b>.</li>
+          <li>Change an element's <b>font</b> from the default.</li>
+          <li>Use at least one <b>class</b> attribute to style some HTML selectively.</li>
+          <li>If you didn't last week — add an <code class="ic">&lt;img&gt;</code> and an <code class="ic">&lt;a&gt;</code> tag.</li>
+          <li><span class="xc">extra credit</span> Load a font from <b>Google Fonts</b>.</li>
+        </ul>
+      </div>
+      <p class="next rise">&lt;/week-03&gt; · &nbsp;up next: <b>selectors &amp; the cascade</b> — targeting exactly what you want.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">20</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, i = 0;
+  var bar=document.getElementById('bar'), cur=document.getElementById('cur'), totalEl=document.getElementById('total');
+  var sectName=document.getElementById('sectName'), urlEl=document.getElementById('url');
+  var hint=document.getElementById('hint'), overview=document.getElementById('overview'), ovgrid=document.getElementById('ovgrid');
+  totalEl.textContent = total;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+
+  function render(){
+    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+    var s=slides[i];
+    cur.textContent=pad(i+1);
+    bar.style.width=((i+1)/total*100)+'%';
+    sectName.textContent=s.getAttribute('data-section')||'';
+    urlEl.innerHTML='localhost:1989/<b>week-03</b>/'+(s.getAttribute('data-slug')||'');
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+    Array.prototype.forEach.call(ovgrid.children, function(c,idx){ c.classList.toggle('current', idx===i); });
+  }
+  function go(n){ var nx=Math.max(0,Math.min(total-1,n)); if(nx===i) return; i=nx; render(); }
+  function nextSlide(){ go(i+1); } function prevSlide(){ go(i-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(overview.classList.contains('open')){ if(k==='Escape'||k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); } return; }
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){ nextSlide(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){ prevSlide(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); e.preventDefault(); }
+    else if(k==='End'){ go(total-1); e.preventDefault(); }
+    else if(k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); }
+    else if(k==='f'||k==='F'){ toggleFullscreen(); e.preventDefault(); }
+    else if(k>='1'&&k<='9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(e.target.closest('a, button')) return;
+    var x=e.clientX/window.innerWidth;
+    if(x>0.35) nextSlide(); else prevSlide();
+  });
+
+  var tx=0,ty=0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?nextSlide():prevSlide(); }
+  }, {passive:true});
+
+  var fsBtn=document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el=document.documentElement;
+    if(!fsElement()){
+      var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+      if(req){ var r=req.call(el); if(r&&r.catch) r.catch(function(){}); }
+    } else {
+      var exit=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;
+      if(exit){ var e2=exit.call(document); if(e2&&e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on=!!fsElement();
+    if(fsBtn){ fsBtn.textContent=on?'⤢':'⛶'; fsBtn.title=on?'Exit fullscreen (F)':'Fullscreen (F)'; }
+  }
+  if(fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  slides.forEach(function(s,idx){
+    var b=document.createElement('button');
+    b.className='ovcard';
+    var title=(s.querySelector('h1, h2')||{}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML='<span class="oi">'+pad(idx+1)+' · '+(s.getAttribute('data-section')||'')+'</span>'+
+                '<span class="ot">'+title.replace(/\s+/g,' ').trim()+'</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  setTimeout(function(){ hint.style.opacity='0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity='1'; clearTimeout(hint._t);
+    hint._t=setTimeout(function(){ hint.style.opacity='0'; }, 2600);
+  });
+
+  var start=parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i=start-1;
+  render();
+})();
+</script>
+</body>
+</html>

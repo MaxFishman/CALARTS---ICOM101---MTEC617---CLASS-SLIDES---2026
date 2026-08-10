@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 06 · WordPress — ICOM101 / MTEC617</title>
+<meta name="description" content="Week 6 slideshow for Intro to Web Development (ICOM101 / MTEC617), CalArts — WordPress." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 06 · WORDPRESS
+     Same identity as Weeks 01–05. New signature: a stylized
+     wp-admin dashboard mock, reused across the workflow slides.
+     ============================================================ */
+
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  /* ---------- deck frame ---------- */
+  .deck{ position:fixed; inset:clamp(10px,2.4vw,30px); background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); display:flex; flex-direction:column; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; } .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{ position:absolute; inset:0; padding:clamp(22px,3.8vw,60px); display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s; overflow:auto; }
+  .slide.active{ opacity:1; visibility:visible; transform:none; transition:opacity .55s var(--ease), transform .55s var(--ease); z-index:2; }
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; } .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; } .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; } .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,15px); color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(12px,1.7vw,22px); }
+  .eyebrow .num{ color:var(--active); } .eyebrow .tag{ color:var(--link); }
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(28px,4.6vw,58px); }
+  .lead{ font-size:clamp(16px,1.75vw,23px); line-height:1.45; max-width:58ch; color:var(--ink); margin:clamp(12px,1.8vw,24px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+  code.ic{ font-family:var(--f-mono); font-size:.9em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  .talk{ margin-top:clamp(14px,2vw,26px); border-left:3px solid var(--visited); padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.05vw,14.5px); color:var(--muted); line-height:1.7; max-width:74ch; }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98; font-size:clamp(48px,10vw,150px);
+    color:var(--link); text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px); text-underline-offset:clamp(6px,1.2vw,16px); }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- two-column layout ---------- */
+  .cols2{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.4vw,34px); margin-top:clamp(14px,2vw,26px); align-items:start; }
+  @media (max-width:880px){ .cols2{ grid-template-columns:1fr; } }
+  .caption{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:12px; line-height:1.55; max-width:62ch; }
+  .caption b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- wp-admin dashboard mock (fixed 'screenshot' colors) ---------- */
+  .wpadmin{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; box-shadow:5px 6px 0 var(--link);
+    display:grid; grid-template-columns:172px 1fr; background:#fff; font-family:var(--f-body); }
+  .wpadmin .side{ background:#1c1c24; color:#c3c3cf; padding:10px 0; font-size:clamp(12px,1.15vw,14px); }
+  .wpadmin .side .wtop{ display:flex; align-items:center; gap:8px; padding:6px 14px 12px; color:#fff; font-family:var(--f-display); font-weight:600;
+    border-bottom:1px solid #2e2e3a; margin-bottom:8px; }
+  .wpadmin .side .wtop .wp{ width:20px; height:20px; border-radius:50%; background:#fff; color:#1c1c24; display:grid; place-items:center; font-weight:700; font-size:13px; }
+  .wpadmin .side .mi{ display:flex; align-items:center; gap:9px; padding:7px 14px; color:#c3c3cf; }
+  .wpadmin .side .mi .ic{ width:15px; text-align:center; opacity:.85; }
+  .wpadmin .side .mi.active{ background:#1B10E6; color:#fff; font-weight:600; box-shadow:inset 3px 0 0 #fff; }
+  .wpadmin .main{ background:#f4f4f8; color:#1a1a1f; padding:clamp(14px,1.8vw,22px); min-height:220px; }
+  .wpadmin .main .fieldlabel{ font-family:var(--f-mono); font-size:11.5px; color:#8a8a96; margin:0 0 6px; }
+  .wpadmin .main .titlefield{ background:#fff; border:1.4px solid #d3d3dd; border-radius:6px; padding:11px 14px; color:#9a9aa6;
+    font-family:var(--f-display); font-size:clamp(15px,1.7vw,20px); }
+  .wpadmin .main .toolbar{ display:flex; gap:6px; margin:12px 0 8px; flex-wrap:wrap; }
+  .wpadmin .main .toolbar span{ width:26px; height:22px; border:1.2px solid #d3d3dd; border-radius:4px; background:#fff; display:grid; place-items:center;
+    font-family:var(--f-mono); font-size:12px; color:#555; }
+  .wpadmin .main .bodylines{ background:#fff; border:1.4px solid #e2e2ea; border-radius:6px; padding:12px; display:grid; gap:8px; }
+  .wpadmin .main .bodylines .ln{ height:8px; border-radius:2px; background:#e4e4ec; }
+  .wpadmin .main .publishbtn{ display:inline-block; margin-top:12px; background:#1B10E6; color:#fff; font-family:var(--f-display); font-weight:600;
+    padding:9px 20px; border-radius:6px; font-size:14px; }
+  .wpadmin .main .panelrow{ display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  .wpadmin .main .chipbox{ background:#fff; border:1.4px solid #e2e2ea; border-radius:6px; padding:9px 12px; font-family:var(--f-mono); font-size:12px; color:#555; }
+  .wpadmin .main .welcome{ font-family:var(--f-display); font-weight:600; font-size:clamp(18px,2.2vw,26px); color:#111; }
+  .wpadmin .main .statrow{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .wpadmin .main .stat{ background:#fff; border:1.4px solid #e2e2ea; border-radius:6px; padding:12px; }
+  .wpadmin .main .stat b{ display:block; font-family:var(--f-display); font-size:20px; color:#1B10E6; } .wpadmin .main .stat span{ font-family:var(--f-mono); font-size:11px; color:#8a8a96; }
+  @media (max-width:560px){ .wpadmin{ grid-template-columns:1fr; } .wpadmin .side{ display:none; } }
+
+  /* ---------- steps ---------- */
+  .steps{ counter-reset:s; list-style:none; margin:0; padding:0; display:grid; gap:clamp(11px,1.5vw,17px); }
+  .steps li{ display:grid; grid-template-columns:auto 1fr; gap:clamp(12px,1.5vw,18px); align-items:baseline;
+    font-size:clamp(13.5px,1.45vw,19px); line-height:1.4; }
+  .steps li::before{ counter-increment:s; content:counter(s); font-family:var(--f-mono); font-weight:700; color:var(--link);
+    background:color-mix(in srgb, var(--link) 12%, transparent); border-radius:6px; min-width:1.9em; text-align:center; padding:2px 0; font-size:.85em; }
+  .steps li b{ color:var(--visited); }
+  .steps li code{ font-family:var(--f-mono); font-size:.86em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  /* ---------- request-flow diagram ---------- */
+  .flow{ display:flex; align-items:stretch; justify-content:center; gap:clamp(6px,1vw,14px); flex-wrap:wrap; margin-top:clamp(16px,2.4vw,32px); }
+  .flow .node{ flex:1 1 150px; max-width:220px; border:1.5px solid var(--ink); border-radius:10px; background:var(--card); padding:clamp(12px,1.6vw,20px);
+    display:flex; flex-direction:column; gap:6px; box-shadow:4px 5px 0 rgba(0,0,0,.1); }
+  .flow .node .em{ font-size:clamp(20px,2.4vw,30px); } .flow .node .t{ font-family:var(--f-display); font-weight:600; font-size:clamp(14px,1.5vw,19px); color:var(--link); }
+  .flow .node .s{ font-family:var(--f-mono); font-size:clamp(11px,1.1vw,13.5px); color:var(--muted); line-height:1.45; }
+  .flow .arr{ display:flex; align-items:center; color:var(--active); font-size:clamp(18px,2vw,26px); font-family:var(--f-mono); }
+  @media (max-width:880px){ .flow{ flex-direction:column; align-items:stretch; } .flow .node{ max-width:none; } .flow .arr{ justify-content:center; transform:rotate(90deg); } }
+
+  /* ---------- three/four-up cards ---------- */
+  .semgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2vw,24px); margin-top:clamp(14px,2vw,26px); }
+  .semgrid.four{ grid-template-columns:repeat(4,1fr); } .semgrid.two{ grid-template-columns:1fr 1fr; }
+  @media (max-width:980px){ .semgrid.four{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:860px){ .semgrid,.semgrid.two{ grid-template-columns:1fr; } }
+  .semcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(15px,1.9vw,24px); background:var(--card); display:flex; flex-direction:column; gap:9px; }
+  .semcard.best{ border-color:var(--link); box-shadow:5px 6px 0 var(--link); }
+  .semcard .tg{ font-family:var(--f-display); font-weight:600; font-size:clamp(15px,1.7vw,21px); color:var(--link); }
+  .semcard .tg .em{ margin-right:6px; }
+  .semcard p{ margin:0; font-size:clamp(12.5px,1.3vw,16px); line-height:1.45; color:var(--muted); }
+  .semcard .for{ margin-top:auto; font-family:var(--f-mono); font-size:clamp(11px,1.05vw,13.5px); color:var(--visited); }
+  .semcard .for b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- vs blocks ---------- */
+  .vs{ display:grid; grid-template-columns:1fr auto 1fr; gap:clamp(14px,2vw,26px); align-items:stretch; margin-top:clamp(14px,2vw,26px); }
+  @media (max-width:860px){ .vs{ grid-template-columns:1fr; } .vs .vsmid{ transform:rotate(90deg); } }
+  .vscard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(16px,2vw,26px); background:var(--card); }
+  .vscard h3{ font-family:var(--f-mono); margin:0 0 12px; font-size:clamp(16px,1.9vw,23px); }
+  .vscard.post h3{ color:var(--link); } .vscard.page h3{ color:var(--visited); }
+  .vscard ul{ margin:0; padding-left:1.15em; display:grid; gap:8px; font-size:clamp(13px,1.4vw,17.5px); line-height:1.4; }
+  .vscard li::marker{ color:var(--muted); }
+  .vsmid{ display:grid; place-items:center; font-family:var(--f-mono); color:var(--active); font-size:clamp(16px,1.8vw,22px); }
+
+  /* ---------- factor list ---------- */
+  .factors{ display:flex; flex-wrap:wrap; gap:clamp(10px,1.4vw,16px); margin-top:clamp(16px,2.4vw,30px); }
+  .factor{ flex:1 1 200px; border:1.5px solid var(--ink); border-radius:10px; background:var(--card); padding:clamp(13px,1.6vw,20px); display:flex; flex-direction:column; gap:5px; }
+  .factor .fh{ font-family:var(--f-display); font-weight:600; font-size:clamp(15px,1.6vw,20px); color:var(--link); }
+  .factor p{ margin:0; font-size:clamp(12px,1.25vw,15px); color:var(--muted); line-height:1.4; }
+
+  /* ---------- recap chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,13px); margin-top:clamp(16px,2.2vw,28px); max-width:86ch; }
+  .chip{ font-family:var(--f-mono); font-size:clamp(13px,1.3vw,18px); padding:clamp(7px,.9vw,12px) clamp(11px,1.3vw,18px);
+    border:1.5px solid var(--ink); border-radius:999px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .closing .next{ margin-top:clamp(18px,2.4vw,32px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- practice ---------- */
+  .hw ul{ margin:clamp(14px,2vw,24px) 0 0; padding-left:1.25em; display:grid; gap:clamp(9px,1.3vw,14px);
+    font-size:clamp(14.5px,1.55vw,21px); line-height:1.4; max-width:66ch; }
+  .hw ul b{ color:var(--visited); }
+
+  /* ---------- footer / controls ---------- */
+  .footer{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:9px 16px; background:var(--chrome);
+    border-top:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; } .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{ font-family:var(--f-mono); font-size:14px; line-height:1; width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink); border:1.4px solid var(--ink); border-radius:6px; }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40; font-family:var(--f-mono); font-size:11.5px;
+    color:var(--muted); background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px; box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px);
+    padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px;
+    min-height:110px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; } .progress .bar{ transition:none; }
+  }
+  @media (max-width:560px){ .chrome .brand{ display:none; } .footer .sect{ display:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Week 6 slideshow">
+
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-06</b>/wordpress</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="wordpress" data-section="cover">
+      <p class="doctype rise">yoursite.com<b>/wp-admin</b> <span style="color:var(--muted)">— building without writing every line</span></p>
+      <h1 class="titlelink rise">WordPress<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>06</b></span>
+        <span>CalArts <b>· Spring ’23</b></span>
+      </div>
+    </section>
+
+    <!-- 2 · WHAT IS WORDPRESS -->
+    <section class="slide" data-slug="what-is-wordpress" data-section="what is wp">
+      <p class="eyebrow rise">&lt;!-- <span class="num">01</span> / <span class="tag">what is WordPress?</span> --&gt;</p>
+      <h2 class="rise">A content management system.</h2>
+      <p class="lead rise">WordPress (a <em class="hl">CMS</em>) lets you create and manage a website through a visual dashboard — <em class="hl2">no writing HTML &amp; CSS by hand</em> for every page.</p>
+      <p class="lead muted rise">Under the hood it's built on <b>PHP</b> and a <b>MySQL</b> database. It powers everything from simple blogs to complex online stores — which is why it runs a huge share of the web.</p>
+    </section>
+
+    <!-- 3 · HOW IT WORKS -->
+    <section class="slide" data-slug="how-it-works" data-section="how it works">
+      <p class="eyebrow rise">&lt;!-- <span class="num">02</span> / <span class="tag">how a page gets built</span> --&gt;</p>
+      <h2 class="rise" style="text-align:center">Assembled on every visit.</h2>
+      <div class="flow rise">
+        <div class="node"><span class="em">🌐</span><span class="t">Visitor</span><span class="s">requests a page in their browser.</span></div>
+        <div class="arr">→</div>
+        <div class="node"><span class="em">⚙️</span><span class="t">Server + PHP</span><span class="s">runs the WordPress code.</span></div>
+        <div class="arr">→</div>
+        <div class="node"><span class="em">🗄️</span><span class="t">MySQL</span><span class="s">supplies content &amp; settings.</span></div>
+        <div class="arr">→</div>
+        <div class="node"><span class="em">📄</span><span class="t">HTML / CSS / JS</span><span class="s">generated &amp; sent back to display.</span></div>
+      </div>
+      <p class="caption rise" style="text-align:center;margin-left:auto;margin-right:auto">Unlike the static HTML files we've written, a WordPress page is <b>built fresh from the database</b> each time it's requested.</p>
+    </section>
+
+    <!-- 4 · CORE / THEMES / PLUGINS -->
+    <section class="slide" data-slug="anatomy" data-section="the pieces">
+      <p class="eyebrow rise">&lt;!-- <span class="num">03</span> / <span class="tag">three moving parts</span> --&gt;</p>
+      <h2 class="rise">Core, themes &amp; plugins.</h2>
+      <div class="semgrid rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">🧠</span>Core</span>
+          <p>The WordPress engine itself — the files that run your site and power the dashboard.</p>
+          <span class="for">the foundation</span>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🎨</span>Themes</span>
+          <p>Control the <b>layout &amp; design</b> — how your site looks. Swap one and the whole look changes.</p>
+          <span class="for"><b>look &amp; feel</b></span>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🔌</span>Plugins</span>
+          <p>Add <b>functionality</b> — contact forms, SEO, backups, e-commerce, and thousands more.</p>
+          <span class="for"><b>extra features</b></span>
+        </div>
+      </div>
+      <p class="talk rise"><b>// thousands available</b> — free and paid — so you can shape a WordPress site to almost any project.</p>
+    </section>
+
+    <!-- 5 · CREATE A SITE -->
+    <section class="slide" data-slug="create-a-site" data-section="create a site">
+      <p class="eyebrow rise">&lt;!-- <span class="num">04</span> / <span class="tag">two ways to start</span> --&gt;</p>
+      <h2 class="rise">Online or on your machine.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">☁️</span>Online (hosted)</span>
+          <ol class="steps" style="margin-top:4px">
+            <li>Pick a <b>host</b> (Bluehost, SiteGround…) — many offer one-click installs.</li>
+            <li>Choose a <b>domain name</b>.</li>
+            <li>Follow prompts to install &amp; set a username / password.</li>
+            <li>Log in, pick a theme, add content.</li>
+          </ol>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">💻</span>Locally (your computer)</span>
+          <ol class="steps" style="margin-top:4px">
+            <li>Install a local server: <b>XAMPP</b> or <b>MAMP</b>.</li>
+            <li>Download WordPress from <code>wordpress.org</code>.</li>
+            <li>Create a database, then run the installer at <code>localhost/…</code></li>
+            <li>Log in and start building.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · CHOOSING A HOST -->
+    <section class="slide" data-slug="choosing-a-host" data-section="hosting">
+      <p class="eyebrow rise">&lt;!-- <span class="num">05</span> / <span class="tag">choosing a host</span> --&gt;</p>
+      <h2 class="rise">Where your site lives.</h2>
+      <div class="semgrid four rise">
+        <div class="semcard">
+          <span class="tg">Shared</span>
+          <p>Many sites share one server. Cheapest, simplest.</p>
+          <span class="for">best for: <b>beginners, budgets</b></span>
+        </div>
+        <div class="semcard">
+          <span class="tg">VPS</span>
+          <p>Your own slice of a server — more control &amp; resources.</p>
+          <span class="for">best for: <b>growing traffic</b></span>
+        </div>
+        <div class="semcard">
+          <span class="tg">Dedicated</span>
+          <p>A whole physical server to yourself. Priciest, most powerful.</p>
+          <span class="for">best for: <b>large, secure sites</b></span>
+        </div>
+        <div class="semcard">
+          <span class="tg">Cloud</span>
+          <p>Scale resources up &amp; down on demand.</p>
+          <span class="for">best for: <b>spiky traffic</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · HOST FACTORS -->
+    <section class="slide" data-slug="host-factors" data-section="what to weigh">
+      <p class="eyebrow rise">&lt;!-- <span class="num">06</span> / <span class="tag">what to weigh</span> --&gt;</p>
+      <h2 class="rise">Comparing hosts.</h2>
+      <div class="factors rise">
+        <div class="factor"><span class="fh">💰 Cost</span><p>Does it fit your budget?</p></div>
+        <div class="factor"><span class="fh">📦 Resources</span><p>Enough storage, bandwidth &amp; power?</p></div>
+        <div class="factor"><span class="fh">🛟 Support</span><p>Good help when things break?</p></div>
+        <div class="factor"><span class="fh">🔒 Security</span><p>Protection against attacks?</p></div>
+        <div class="factor"><span class="fh">⚡ Speed</span><p>Fast loading for visitors?</p></div>
+      </div>
+      <p class="talk rise"><b>// also</b> — read reviews, ask for recommendations, and think ahead about scalability and moving hosts later.</p>
+    </section>
+
+    <!-- 8 · THE DASHBOARD -->
+    <section class="slide" data-slug="the-dashboard" data-section="the dashboard">
+      <p class="eyebrow rise">&lt;!-- <span class="num">07</span> / <span class="tag">the dashboard — wp-admin</span> --&gt;</p>
+      <h2 class="rise">Your control room.</h2>
+      <div class="cols2 rise">
+        <div class="wpadmin">
+          <div class="side">
+            <div class="wtop"><span class="wp">W</span> Dashboard</div>
+            <div class="mi active"><span class="ic">⌂</span> Dashboard</div>
+            <div class="mi"><span class="ic">📝</span> Posts</div>
+            <div class="mi"><span class="ic">📄</span> Pages</div>
+            <div class="mi"><span class="ic">🖼</span> Media</div>
+            <div class="mi"><span class="ic">🎨</span> Appearance</div>
+            <div class="mi"><span class="ic">🔌</span> Plugins</div>
+            <div class="mi"><span class="ic">⚙️</span> Settings</div>
+          </div>
+          <div class="main">
+            <div class="welcome">Welcome back 👋</div>
+            <div class="statrow">
+              <div class="stat"><b>12</b><span>posts</span></div>
+              <div class="stat"><b>5</b><span>pages</span></div>
+              <div class="stat"><b>3</b><span>plugins</span></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="lead" style="margin-top:0">Everything is managed from the <em class="hl">dashboard</em> — the admin area behind your site.</p>
+          <p class="caption">Log in by adding <code class="ic">/wp-admin</code> to your site's URL (e.g. <code class="ic">www.example.com/wp-admin</code>), then enter your username &amp; password. The left menu is your map: <b>Posts, Pages, Appearance, Plugins, Settings.</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · POSTS VS PAGES -->
+    <section class="slide" data-slug="posts-vs-pages" data-section="posts vs pages">
+      <p class="eyebrow rise">&lt;!-- <span class="num">08</span> / <span class="tag">a key distinction</span> --&gt;</p>
+      <h2 class="rise">Posts vs. Pages.</h2>
+      <div class="vs rise">
+        <div class="vscard post">
+          <h3>📝 Posts</h3>
+          <ul>
+            <li>Time-based, organized by <b>date</b>.</li>
+            <li>Show up in your <b>blog feed</b> &amp; archives.</li>
+            <li>Use <b>categories</b> &amp; <b>tags</b>.</li>
+            <li>e.g. news, blog entries, updates.</li>
+          </ul>
+        </div>
+        <div class="vsmid">vs</div>
+        <div class="vscard page">
+          <h3>📄 Pages</h3>
+          <ul>
+            <li><b>Static</b> content, not dated.</li>
+            <li>Not in the blog feed.</li>
+            <li>Use <b>templates</b> for layout.</li>
+            <li>e.g. About Us, Contact.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · CREATING A POST -->
+    <section class="slide" data-slug="creating-a-post" data-section="a post">
+      <p class="eyebrow rise">&lt;!-- <span class="num">09</span> / <span class="tag">creating a post</span> --&gt;</p>
+      <h2 class="rise">Write &amp; publish.</h2>
+      <div class="cols2 rise">
+        <div class="wpadmin">
+          <div class="side">
+            <div class="wtop"><span class="wp">W</span> Posts</div>
+            <div class="mi"><span class="ic">⌂</span> Dashboard</div>
+            <div class="mi active"><span class="ic">📝</span> Posts</div>
+            <div class="mi"><span class="ic">📄</span> Pages</div>
+            <div class="mi"><span class="ic">🖼</span> Media</div>
+            <div class="mi"><span class="ic">🎨</span> Appearance</div>
+          </div>
+          <div class="main">
+            <p class="fieldlabel">Add New Post</p>
+            <div class="titlefield">Enter title here</div>
+            <div class="toolbar"><span>B</span><span>i</span><span>“”</span><span>🔗</span><span>🖼</span></div>
+            <div class="bodylines"><div class="ln" style="width:100%"></div><div class="ln" style="width:92%"></div><div class="ln" style="width:70%"></div></div>
+            <span class="publishbtn">Publish</span>
+          </div>
+        </div>
+        <ol class="steps">
+          <li><b>Posts ▸ Add New</b> from the menu.</li>
+          <li>Type a <b>title</b> and write in the visual editor.</li>
+          <li>Pick <b>Categories</b> and add <b>Tags</b>.</li>
+          <li><b>Add Media</b> for images &amp; video.</li>
+          <li>Optional: a <b>featured image</b> (thumbnail) &amp; an <b>excerpt</b> (summary).</li>
+          <li><b>Publish</b> — or save a draft / schedule for later.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 11 · CREATING A PAGE -->
+    <section class="slide" data-slug="creating-a-page" data-section="a page">
+      <p class="eyebrow rise">&lt;!-- <span class="num">10</span> / <span class="tag">creating a page</span> --&gt;</p>
+      <h2 class="rise">Static content.</h2>
+      <div class="cols2 rise">
+        <div class="wpadmin">
+          <div class="side">
+            <div class="wtop"><span class="wp">W</span> Pages</div>
+            <div class="mi"><span class="ic">⌂</span> Dashboard</div>
+            <div class="mi"><span class="ic">📝</span> Posts</div>
+            <div class="mi active"><span class="ic">📄</span> Pages</div>
+            <div class="mi"><span class="ic">🖼</span> Media</div>
+            <div class="mi"><span class="ic">🎨</span> Appearance</div>
+          </div>
+          <div class="main">
+            <p class="fieldlabel">Add New Page</p>
+            <div class="titlefield">About Us</div>
+            <div class="panelrow"><span class="chipbox">Page Attributes</span><span class="chipbox">Template ▾</span></div>
+            <span class="publishbtn">Publish</span>
+          </div>
+        </div>
+        <ol class="steps">
+          <li><b>Pages ▸ Add New</b> from the menu.</li>
+          <li>Add a <b>title</b> and content in the editor.</li>
+          <li>Choose a <b>Template</b> under <b>Page Attributes</b> to control the layout.</li>
+          <li><b>Add Media</b> as needed.</li>
+          <li><b>Publish</b>, save a draft, or schedule.</li>
+        </ol>
+      </div>
+      <p class="caption rise">Remember: pages are for <b>static</b> content (About, Contact) — not dated like posts.</p>
+    </section>
+
+    <!-- 12 · THEMES -->
+    <section class="slide" data-slug="themes" data-section="themes">
+      <p class="eyebrow rise">&lt;!-- <span class="num">11</span> / <span class="tag">themes — design &amp; layout</span> --&gt;</p>
+      <h2 class="rise">Change the whole look.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">✅</span>Using a theme</span>
+          <ol class="steps" style="margin-top:4px">
+            <li><b>Appearance ▸ Themes</b>.</li>
+            <li>Browse the library, <b>Live Preview</b> one you like.</li>
+            <li><b>Activate</b> to apply it to your site.</li>
+          </ol>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🛠</span>Building a theme</span>
+          <ol class="steps" style="margin-top:4px">
+            <li>Needs some <b>HTML, CSS &amp; PHP</b>.</li>
+            <li>New folder in <code>wp-content/themes</code>.</li>
+            <li>Add <code>style.css</code> (styles) &amp; <code>index.php</code> (main template).</li>
+            <li>Use PHP to include header/footer &amp; template tags for dynamic content.</li>
+          </ol>
+        </div>
+      </div>
+      <p class="talk rise"><b>// the HTML &amp; CSS you've learned</b> is exactly what lives inside a theme.</p>
+    </section>
+
+    <!-- 13 · MENUS -->
+    <section class="slide" data-slug="menus" data-section="menus">
+      <p class="eyebrow rise">&lt;!-- <span class="num">12</span> / <span class="tag">menus — site navigation</span> --&gt;</p>
+      <h2 class="rise">Build the navigation.</h2>
+      <div class="cols2 rise">
+        <ol class="steps">
+          <li><b>Appearance ▸ Menus</b> opens the Menu Editor.</li>
+          <li>Name it, click <b>Create Menu</b>.</li>
+          <li><b>Add Items</b> — Pages, Posts, or Custom Links.</li>
+          <li><b>Drag &amp; drop</b> to reorder; nest items to make sub-menus.</li>
+          <li>Assign it to a <b>location</b> (header, footer, sidebar) under Manage Locations.</li>
+        </ol>
+        <div>
+          <p class="lead" style="margin-top:0">Menus are how visitors <em class="hl">navigate</em> your site.</p>
+          <p class="caption">You can use <b>different menus in different locations</b>, and plugins can add extras like icons or mega-menus.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · PLUGINS -->
+    <section class="slide" data-slug="plugins" data-section="plugins">
+      <p class="eyebrow rise">&lt;!-- <span class="num">13</span> / <span class="tag">plugins — added functionality</span> --&gt;</p>
+      <h2 class="rise">Bolt on new features.</h2>
+      <div class="cols2 rise">
+        <div class="wpadmin">
+          <div class="side">
+            <div class="wtop"><span class="wp">W</span> Plugins</div>
+            <div class="mi"><span class="ic">⌂</span> Dashboard</div>
+            <div class="mi"><span class="ic">🎨</span> Appearance</div>
+            <div class="mi active"><span class="ic">🔌</span> Plugins</div>
+            <div class="mi"><span class="ic">⚙️</span> Settings</div>
+          </div>
+          <div class="main">
+            <p class="fieldlabel">Plugins ▸ Add New</p>
+            <div class="panelrow">
+              <span class="chipbox">🔍 search plugins…</span>
+            </div>
+            <div class="panelrow"><span class="chipbox">Contact Form &nbsp; <b style="color:#1B10E6">Install</b></span><span class="chipbox">SEO Tool &nbsp; <b style="color:#1B10E6">Install</b></span></div>
+          </div>
+        </div>
+        <ol class="steps">
+          <li><b>Plugins ▸ Add New</b>, then search the repository.</li>
+          <li>Check the <b>description &amp; reviews</b> — is it well-maintained &amp; compatible?</li>
+          <li><b>Install Now</b>, then <b>Activate</b>.</li>
+          <li>Configure its new settings in the dashboard.</li>
+          <li>Keep plugins <b>updated</b>; remove ones you don't use.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 15 · UPDATING -->
+    <section class="slide" data-slug="updating" data-section="updates">
+      <p class="eyebrow rise">&lt;!-- <span class="num">14</span> / <span class="tag">keeping it updated</span> --&gt;</p>
+      <h2 class="rise">Update for security.</h2>
+      <div class="cols2 rise">
+        <ol class="steps">
+          <li><b>Back up first</b> — always, before any update.</li>
+          <li>Go to the <b>Updates</b> section of the dashboard.</li>
+          <li><b>Update Now</b> for core — don't close the tab while it runs.</li>
+          <li>Then update your <b>plugins &amp; themes</b>.</li>
+          <li>For major versions, check release notes for compatibility.</li>
+        </ol>
+        <div>
+          <p class="lead" style="margin-top:0">Updates bring <em class="hl">security patches</em>, bug fixes, and new features.</p>
+          <p class="caption">Staying current is one of the best ways to protect your site from being exploited.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 · BACKUPS -->
+    <section class="slide" data-slug="backups" data-section="backups">
+      <p class="eyebrow rise">&lt;!-- <span class="num">15</span> / <span class="tag">backing up</span> --&gt;</p>
+      <h2 class="rise">Your safety net.</h2>
+      <div class="cols2 rise">
+        <div>
+          <p class="lead" style="margin-top:0">A backup plugin like <em class="hl2">UpdraftPlus</em> lets you save a full copy of your site — files <b>and</b> database — before you change anything.</p>
+          <p class="caption">If an update breaks something, you <b>Restore</b> and you're back to normal.</p>
+        </div>
+        <ol class="steps">
+          <li>Install &amp; activate <b>UpdraftPlus</b>.</li>
+          <li>Click <b>Backup Now</b> before updating.</li>
+          <li>Store it <b>off-site</b> — Google Drive, Dropbox.</li>
+          <li><b>Schedule</b> automatic, regular backups.</li>
+          <li>Broke something? <b>Restore</b> from a backup.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 17 · RECAP -->
+    <section class="slide" data-slug="recap" data-section="recap">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">what we learned today</span> --&gt;</p>
+      <h2 class="rise">The WordPress map.</h2>
+      <div class="chips rise">
+        <span class="chip b">CMS</span>
+        <span class="chip">PHP + MySQL</span>
+        <span class="chip b">core / themes / plugins</span>
+        <span class="chip">/wp-admin</span>
+        <span class="chip p">posts vs pages</span>
+        <span class="chip">categories &amp; tags</span>
+        <span class="chip">templates</span>
+        <span class="chip b">themes</span>
+        <span class="chip">menus</span>
+        <span class="chip b">plugins</span>
+        <span class="chip">hosting</span>
+        <span class="chip p">updates</span>
+        <span class="chip p">backups</span>
+      </div>
+      <p class="talk rise"><b>// the big idea</b> — WordPress manages the site so you can focus on content and design, with the HTML &amp; CSS you know living inside the theme.</p>
+    </section>
+
+    <!-- 18 · PRACTICE -->
+    <section class="slide closing" data-slug="try-it" data-section="wrap-up">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">this week — spin one up</span> --&gt;</p>
+      <h2 class="rise">Try WordPress.</h2>
+      <div class="hw rise">
+        <ul>
+          <li>Set up a WordPress site — <b>locally</b> (MAMP/XAMPP) or on a free host.</li>
+          <li>Install and <b>activate a theme</b> you like.</li>
+          <li>Create one <b>Page</b> (About) and one <b>Post</b> (a blog entry).</li>
+          <li>Build a <b>menu</b> and add your pages to it.</li>
+          <li>Install one <b>plugin</b> — and make a <b>backup</b>.</li>
+        </ul>
+      </div>
+      <p class="next rise">&lt;/week-06&gt; · &nbsp;content first, code underneath.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">18</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, i = 0;
+  var bar=document.getElementById('bar'), cur=document.getElementById('cur'), totalEl=document.getElementById('total');
+  var sectName=document.getElementById('sectName'), urlEl=document.getElementById('url');
+  var hint=document.getElementById('hint'), overview=document.getElementById('overview'), ovgrid=document.getElementById('ovgrid');
+  totalEl.textContent = total;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+
+  function render(){
+    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+    var s=slides[i];
+    cur.textContent=pad(i+1);
+    bar.style.width=((i+1)/total*100)+'%';
+    sectName.textContent=s.getAttribute('data-section')||'';
+    urlEl.innerHTML='localhost:1989/<b>week-06</b>/'+(s.getAttribute('data-slug')||'');
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+    Array.prototype.forEach.call(ovgrid.children, function(c,idx){ c.classList.toggle('current', idx===i); });
+  }
+  function go(n){ var nx=Math.max(0,Math.min(total-1,n)); if(nx===i) return; i=nx; render(); }
+  function nextSlide(){ go(i+1); } function prevSlide(){ go(i-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(overview.classList.contains('open')){ if(k==='Escape'||k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); } return; }
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){ nextSlide(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){ prevSlide(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); e.preventDefault(); }
+    else if(k==='End'){ go(total-1); e.preventDefault(); }
+    else if(k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); }
+    else if(k==='f'||k==='F'){ toggleFullscreen(); e.preventDefault(); }
+    else if(k>='1'&&k<='9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(e.target.closest('a, button')) return;
+    var x=e.clientX/window.innerWidth;
+    if(x>0.35) nextSlide(); else prevSlide();
+  });
+
+  var tx=0,ty=0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?nextSlide():prevSlide(); }
+  }, {passive:true});
+
+  var fsBtn=document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el=document.documentElement;
+    if(!fsElement()){
+      var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+      if(req){ var r=req.call(el); if(r&&r.catch) r.catch(function(){}); }
+    } else {
+      var exit=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;
+      if(exit){ var e2=exit.call(document); if(e2&&e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on=!!fsElement();
+    if(fsBtn){ fsBtn.textContent=on?'⤢':'⛶'; fsBtn.title=on?'Exit fullscreen (F)':'Fullscreen (F)'; }
+  }
+  if(fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  slides.forEach(function(s,idx){
+    var b=document.createElement('button');
+    b.className='ovcard';
+    var title=(s.querySelector('h1, h2')||{}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML='<span class="oi">'+pad(idx+1)+' · '+(s.getAttribute('data-section')||'')+'</span>'+
+                '<span class="ot">'+title.replace(/\s+/g,' ').trim()+'</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  setTimeout(function(){ hint.style.opacity='0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity='1'; clearTimeout(hint._t);
+    hint._t=setTimeout(function(){ hint.style.opacity='0'; }, 2600);
+  });
+
+  var start=parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i=start-1;
+  render();
+})();
+</script>
+</body>
+</html>

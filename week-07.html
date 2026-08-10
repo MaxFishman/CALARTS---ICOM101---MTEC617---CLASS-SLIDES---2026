@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 07 · Introduction to JavaScript — ICOM101 / MTEC617</title>
+<meta name="description" content="Week 7 slideshow for Intro to Web Development (ICOM101 / MTEC617), CalArts — Introduction to JavaScript." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 07 · INTRODUCTION TO JAVASCRIPT
+     Same identity as Weeks 01–06. New signature: a DevTools-style
+     console panel showing real console.log output, plus live demos.
+     ============================================================ */
+
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  /* ---------- deck frame ---------- */
+  .deck{ position:fixed; inset:clamp(10px,2.4vw,30px); background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); display:flex; flex-direction:column; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; } .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{ position:absolute; inset:0; padding:clamp(22px,3.8vw,60px); display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s; overflow:auto; }
+  .slide.active{ opacity:1; visibility:visible; transform:none; transition:opacity .55s var(--ease), transform .55s var(--ease); z-index:2; }
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; } .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; } .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; } .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,15px); color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(12px,1.7vw,22px); }
+  .eyebrow .num2{ color:var(--active); } .eyebrow .tag{ color:var(--link); }
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(28px,4.6vw,58px); }
+  .lead{ font-size:clamp(16px,1.75vw,23px); line-height:1.45; max-width:58ch; color:var(--ink); margin:clamp(12px,1.8vw,24px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+  code.ic{ font-family:var(--f-mono); font-size:.9em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  .talk{ margin-top:clamp(14px,2vw,26px); border-left:3px solid var(--visited); padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.05vw,14.5px); color:var(--muted); line-height:1.7; max-width:74ch; }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98; font-size:clamp(44px,9vw,132px);
+    color:var(--link); text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px); text-underline-offset:clamp(6px,1.2vw,16px); }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- code snippet ---------- */
+  .codepair{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.2vw,30px); margin-top:clamp(14px,2vw,26px); align-items:start; }
+  .codepair.solo{ grid-template-columns:1fr; max-width:74ch; }
+  @media (max-width:880px){ .codepair{ grid-template-columns:1fr; } }
+
+  .snippet{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; background:var(--card); box-shadow:5px 6px 0 rgba(0,0,0,.12); }
+  .snippet .bar{ display:flex; align-items:center; gap:8px; padding:8px 13px; background:var(--chrome); border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .snippet .bar .fdot{ width:9px; height:9px; border-radius:50%; border:1.2px solid var(--ink); }
+  .snippet pre{ margin:0; padding:clamp(14px,1.7vw,22px); overflow-x:auto; font-family:var(--f-mono);
+    font-size:clamp(12.5px,1.3vw,17px); line-height:1.7; color:var(--ink); }
+  /* JS syntax tokens */
+  .kw{ color:var(--active); }   /* let const var typeof function */
+  .str{ color:var(--visited); } /* strings */
+  .num{ color:var(--link); }    /* numbers / booleans */
+  .fn{ color:var(--link); }     /* function & method names */
+  .cm{ color:var(--muted); font-style:italic; } /* comments */
+  .op{ color:var(--muted); }    /* operators / punctuation */
+
+  /* ---------- console panel (fixed dark 'terminal' colors) ---------- */
+  .console{ background:#14141b; border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; box-shadow:5px 6px 0 var(--link); }
+  .console .cbar{ display:flex; align-items:center; gap:8px; padding:8px 13px; background:#20202a; border-bottom:1px solid #2e2e3a;
+    font-family:var(--f-mono); font-size:11.5px; color:#8a8a96; }
+  .console .cbar .cd{ width:9px; height:9px; border-radius:50%; }
+  .console .cbody{ padding:clamp(14px,1.7vw,20px); font-family:var(--f-mono); font-size:clamp(12.5px,1.3vw,16.5px); line-height:1.75;
+    color:#d6d6de; display:grid; gap:3px; min-height:70px; }
+  .console .cin{ color:#cfd3e6; } .console .cin::before{ content:"> "; color:#5bd97e; }
+  .console .cout{ color:#8a8a96; } .console .cout::before{ content:"‹ "; color:#4a4a56; }
+  .console .num{ color:#8AA0FF; } .console .str{ color:#C79BF0; } .console .bool{ color:#FF9F7A; }
+  .console .null{ color:#8a8a96; font-style:italic; } .console .cmt{ color:#6b6b72; font-style:italic; }
+
+  .caption{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:12px; line-height:1.55; max-width:62ch; }
+  .caption b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- data-type grid ---------- */
+  .dtgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(11px,1.4vw,18px); margin-top:clamp(14px,2vw,26px); }
+  @media (max-width:980px){ .dtgrid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .dtgrid{ grid-template-columns:1fr; } }
+  .dt{ border:1.5px solid var(--ink); border-radius:10px; background:var(--card); padding:clamp(12px,1.5vw,18px); display:flex; flex-direction:column; gap:6px; }
+  .dt .n{ font-family:var(--f-display); font-weight:600; font-size:clamp(15px,1.6vw,20px); color:var(--link); }
+  .dt .eg{ font-family:var(--f-mono); font-size:clamp(11.5px,1.15vw,14px); color:var(--visited); }
+  .dt .ds{ font-size:clamp(11.5px,1.2vw,14px); color:var(--muted); line-height:1.4; }
+  .dt.prim{ } .dt.obj{ border-color:var(--visited); box-shadow:4px 5px 0 var(--visited); }
+  .dtnote{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:clamp(12px,1.6vw,20px); }
+  .dtnote b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- selector map (jQuery ~ CSS) ---------- */
+  .deflist{ display:grid; gap:clamp(10px,1.4vw,16px); }
+  .deflist .d{ display:grid; grid-template-columns:minmax(120px,auto) 1fr; gap:clamp(12px,1.6vw,22px); align-items:baseline;
+    border-bottom:1.3px dashed var(--line); padding-bottom:clamp(9px,1.3vw,14px); }
+  .deflist .d:last-child{ border-bottom:0; }
+  .deflist .k{ font-family:var(--f-mono); font-size:clamp(12.5px,1.3vw,17px); font-weight:500; color:var(--link); }
+  .deflist .v{ font-size:clamp(13px,1.4vw,18px); line-height:1.4; color:var(--ink); }
+  .deflist .v code{ font-family:var(--f-mono); font-size:.86em; color:var(--visited); }
+
+  /* ---------- live demo (fixed light 'browser output') ---------- */
+  .preview{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; box-shadow:5px 6px 0 var(--link); }
+  .preview .pv-bar{ display:flex; align-items:center; gap:7px; padding:8px 13px; background:#e9e9ef; border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:11.5px; color:#7a7a86; }
+  .preview .pv-bar .d{ width:9px; height:9px; border-radius:50%; background:#c7c7d0; }
+  .preview .pv-body{ background:#fff; color:#1a1a1f; padding:clamp(16px,2vw,26px); min-height:120px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; }
+  .livebtn{ cursor:pointer; border:none; font-family:var(--f-display); font-weight:600; font-size:16px; color:#fff; background:#1B10E6;
+    padding:12px 24px; border-radius:8px; transition:transform .15s var(--ease), background .3s; }
+  .livebtn:hover{ background:#7A1FA2; transform:translateY(-2px); }
+  .fadebox{ width:150px; height:60px; background:#2fae54; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:var(--f-mono); font-size:13px; transition:opacity .8s var(--ease), transform .8s var(--ease); }
+  .fadebox.gone{ opacity:0; transform:translateY(10px); }
+  .miniconsole{ width:100%; background:#14141b; border-radius:6px; padding:10px 12px; font-family:var(--f-mono); font-size:13px; color:#8a8a96;
+    min-height:40px; display:grid; gap:3px; }
+  .miniconsole .l{ color:#cfd3e6; } .miniconsole .l .str{ color:#C79BF0; }
+
+  /* ---------- recap chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,13px); margin-top:clamp(16px,2.2vw,28px); max-width:88ch; }
+  .chip{ font-family:var(--f-mono); font-size:clamp(13px,1.3vw,18px); padding:clamp(7px,.9vw,12px) clamp(11px,1.3vw,18px);
+    border:1.5px solid var(--ink); border-radius:999px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .closing .next{ margin-top:clamp(18px,2.4vw,32px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- practice ---------- */
+  .hw ul{ margin:clamp(14px,2vw,24px) 0 0; padding-left:1.25em; display:grid; gap:clamp(9px,1.3vw,14px);
+    font-size:clamp(14.5px,1.55vw,21px); line-height:1.4; max-width:68ch; }
+  .hw ul b{ color:var(--visited); }
+  .hw ul code{ font-family:var(--f-mono); font-size:.82em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  /* ---------- footer / controls ---------- */
+  .footer{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:9px 16px; background:var(--chrome);
+    border-top:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; } .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{ font-family:var(--f-mono); font-size:14px; line-height:1; width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink); border:1.4px solid var(--ink); border-radius:6px; }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40; font-family:var(--f-mono); font-size:11.5px;
+    color:var(--muted); background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px; box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px);
+    padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px;
+    min-height:110px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; } .progress .bar{ transition:none; } .fadebox,.livebtn{ transition:none !important; }
+  }
+  @media (max-width:560px){ .chrome .brand{ display:none; } .footer .sect{ display:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Week 7 slideshow">
+
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-07</b>/intro-to-javascript</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="intro-to-javascript" data-section="cover">
+      <p class="doctype rise">&lt;script&gt; <b>console.log('hello, world');</b> &lt;/script&gt;</p>
+      <h1 class="titlelink rise">JavaScript<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>07</b></span>
+        <span>CalArts <b>· Spring ’23</b></span>
+      </div>
+    </section>
+
+    <!-- 2 · WHAT IS JS -->
+    <section class="slide" data-slug="what-is-js" data-section="what is js">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">01</span> / <span class="tag">the third language</span> --&gt;</p>
+      <h2 class="rise">HTML, CSS… and behavior.</h2>
+      <p class="lead rise">HTML gives a page <em class="hl">structure</em>, CSS gives it <em class="hl2">style</em> — and <em class="hl">JavaScript</em> gives it <b>behavior</b>: things that happen and change after the page loads.</p>
+      <p class="lead muted rise">Clicks, hovers, key presses, animations, live updates — that's all JavaScript. It's a real programming language, so today we start with its building blocks.</p>
+    </section>
+
+    <!-- 3 · CONSOLE -->
+    <section class="slide" data-slug="the-console" data-section="the console">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">02</span> / <span class="tag">console.log — our window in</span> --&gt;</p>
+      <h2 class="rise">Print to the console.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="num">5</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Hello World!'</span>);</pre>
+        </div>
+        <div class="console">
+          <div class="cbar"><span class="cd" style="background:var(--active)"></span><span class="cd" style="background:#F5B62B"></span><span class="cd" style="background:#38B24A"></span> Console</div>
+          <div class="cbody">
+            <div class="cin"><span class="num">5</span></div>
+            <div class="cin"><span class="str">'Hello World!'</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">The <b>console</b> is a panel (in DevTools) that shows messages for developers. <code class="ic">console.log(...)</code> prints whatever's in the parentheses so you can <b>see your work</b>. End statements with a <code class="ic">;</code>.</p>
+    </section>
+
+    <!-- 4 · COMMENTS -->
+    <section class="slide" data-slug="comments" data-section="comments">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">03</span> / <span class="tag">comments</span> --&gt;</p>
+      <h2 class="rise">Notes the computer ignores.</h2>
+      <div class="codepair solo rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="cm">// a single-line comment</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">5</span>); <span class="cm">// …or after some code</span>
+
+<span class="cm">/*
+  a multi-line comment
+  none of this runs
+*/</span></pre>
+        </div>
+      </div>
+      <p class="caption rise">Comments are for <b>humans</b> — they explain code to teammates and to future-you. <code class="ic">//</code> comments one line; <code class="ic">/* … */</code> wraps many.</p>
+    </section>
+
+    <!-- 5 · DATA TYPES -->
+    <section class="slide" data-slug="data-types" data-section="data types">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">04</span> / <span class="tag">the 7 data types</span> --&gt;</p>
+      <h2 class="rise">Kinds of data.</h2>
+      <div class="dtgrid rise">
+        <div class="dt prim"><span class="n">Number</span><span class="eg">4 · 23.42</span><span class="ds">any number, decimals too.</span></div>
+        <div class="dt prim"><span class="n">String</span><span class="eg">'hello'</span><span class="ds">text in quotes.</span></div>
+        <div class="dt prim"><span class="n">Boolean</span><span class="eg">true · false</span><span class="ds">a yes/no switch.</span></div>
+        <div class="dt prim"><span class="n">Null</span><span class="eg">null</span><span class="ds">intentionally empty.</span></div>
+        <div class="dt prim"><span class="n">Undefined</span><span class="eg">undefined</span><span class="ds">no value yet.</span></div>
+        <div class="dt prim"><span class="n">Symbol</span><span class="eg">unique id</span><span class="ds">advanced — later.</span></div>
+        <div class="dt obj"><span class="n">Object</span><span class="eg">{ … }</span><span class="ds">a collection of related data.</span></div>
+        <div class="dt" style="border-style:dashed;justify-content:center"><span class="ds" style="color:var(--link)">First 6 are <b>primitive</b> — the most basic types.</span></div>
+      </div>
+    </section>
+
+    <!-- 6 · NUMBERS & ARITHMETIC -->
+    <section class="slide" data-slug="arithmetic" data-section="arithmetic">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">05</span> / <span class="tag">arithmetic operators</span> --&gt;</p>
+      <h2 class="rise">Math with numbers.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="num">3</span> <span class="op">+</span> <span class="num">4</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">9</span> <span class="op">/</span> <span class="num">3</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="num">11</span> <span class="op">%</span> <span class="num">3</span>);</pre>
+        </div>
+        <div class="console">
+          <div class="cbar"><span class="cd" style="background:var(--active)"></span><span class="cd" style="background:#F5B62B"></span><span class="cd" style="background:#38B24A"></span> Console</div>
+          <div class="cbody">
+            <div class="cin"><span class="num">7</span></div>
+            <div class="cin"><span class="num">3</span></div>
+            <div class="cin"><span class="num">2</span> <span class="cmt">// remainder</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">Operators: <code class="ic">+</code> add, <code class="ic">-</code> subtract, <code class="ic">*</code> multiply, <code class="ic">/</code> divide, <code class="ic">%</code> remainder (modulo). <code class="ic">11 % 3</code> is <b>2</b> — 3 fits into 11 three times, leaving 2.</p>
+    </section>
+
+    <!-- 7 · STRINGS & CONCATENATION -->
+    <section class="slide" data-slug="concatenation" data-section="strings">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">06</span> / <span class="tag">string concatenation</span> --&gt;</p>
+      <h2 class="rise">Gluing text together.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'hi'</span> <span class="op">+</span> <span class="str">'ya'</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'I love to '</span> <span class="op">+</span> <span class="str">'code.'</span>);</pre>
+        </div>
+        <div class="console">
+          <div class="cbar"><span class="cd" style="background:var(--active)"></span><span class="cd" style="background:#F5B62B"></span><span class="cd" style="background:#38B24A"></span> Console</div>
+          <div class="cbody">
+            <div class="cin"><span class="str">'hiya'</span></div>
+            <div class="cin"><span class="str">'I love to code.'</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">The <code class="ic">+</code> operator on strings <b>concatenates</b> — joins them exactly. Watch your spaces: <code class="ic">'love to '</code> keeps the trailing space so words don't collide.</p>
+    </section>
+
+    <!-- 8 · PROPERTIES & METHODS -->
+    <section class="slide" data-slug="properties-methods" data-section="properties & methods">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">07</span> / <span class="tag">properties &amp; methods · the dot</span> --&gt;</p>
+      <h2 class="rise">Ask data about itself.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="cm">// property — stored info</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Hello'</span>.<span class="op">length</span>);
+
+<span class="cm">// method — an action</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'hello'</span>.<span class="fn">toUpperCase</span>());
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Hey'</span>.<span class="fn">startsWith</span>(<span class="str">'H'</span>));</pre>
+        </div>
+        <div class="console">
+          <div class="cbar"><span class="cd" style="background:var(--active)"></span><span class="cd" style="background:#F5B62B"></span><span class="cd" style="background:#38B24A"></span> Console</div>
+          <div class="cbody">
+            <div class="cin"><span class="num">5</span></div>
+            <div class="cin"><span class="str">'HELLO'</span></div>
+            <div class="cin"><span class="bool">true</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">The <code class="ic">.</code> is the <b>dot operator</b>. A <b>property</b> holds info (<code class="ic">.length</code>); a <b>method</b> does something and needs <code class="ic">()</code> (<code class="ic">.toUpperCase()</code>). Sound familiar? <code class="ic">console.log()</code> is a method too.</p>
+    </section>
+
+    <!-- 9 · MATH OBJECT -->
+    <section class="slide" data-slug="math-object" data-section="the Math object">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">08</span> / <span class="tag">built-in objects: Math</span> --&gt;</p>
+      <h2 class="rise">Tools that come with JS.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="cm">// random number, 0 to 1</span>
+<span class="fn">Math</span>.<span class="fn">random</span>();
+
+<span class="cm">// a whole number, 0–49</span>
+<span class="fn">Math</span>.<span class="fn">floor</span>(<span class="fn">Math</span>.<span class="fn">random</span>() <span class="op">*</span> <span class="num">50</span>);</pre>
+        </div>
+        <div class="console">
+          <div class="cbar"><span class="cd" style="background:var(--active)"></span><span class="cd" style="background:#F5B62B"></span><span class="cd" style="background:#38B24A"></span> Console</div>
+          <div class="cbody">
+            <div class="cin"><span class="num">0.4817…</span></div>
+            <div class="cin"><span class="num">24</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">Math</code> is a built-in object full of methods. <code class="ic">Math.random()</code> gives 0–1; multiply by 50, then <code class="ic">Math.floor()</code> rounds <b>down</b> to a whole number.</p>
+    </section>
+
+    <!-- 10 · VARIABLES -->
+    <section class="slide" data-slug="variables" data-section="variables">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">09</span> / <span class="tag">variables — var, let, const</span> --&gt;</p>
+      <h2 class="rise">Containers for values.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="kw">let</span> myName <span class="op">=</span> <span class="str">'Arya'</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(myName);   <span class="cm">// Arya</span></pre>
+        </div>
+        <div>
+          <div class="deflist" style="margin-top:0">
+            <div class="d"><span class="k">let</span><span class="v">the value <b>can change</b> later. The everyday choice.</span></div>
+            <div class="d"><span class="k">const</span><span class="v">the value is <b>constant</b> — reassigning throws an error.</span></div>
+            <div class="d"><span class="k">var</span><span class="v">the old, pre-2015 way. You'll see it, but prefer let/const.</span></div>
+          </div>
+          <p class="caption">Names use <b>camelCase</b> (<code class="ic">myName</code>), can't start with a number, and are case-sensitive. <code class="ic">=</code> is the <b>assignment operator</b>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · REASSIGNMENT & ASSIGNMENT OPERATORS -->
+    <section class="slide" data-slug="reassignment" data-section="reassigning">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">10</span> / <span class="tag">updating a variable</span> --&gt;</p>
+      <h2 class="rise">Change what's inside.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="kw">let</span> w <span class="op">=</span> <span class="num">4</span>;
+w <span class="op">+=</span> <span class="num">1</span>;   <span class="cm">// same as w = w + 1</span>
+<span class="fn">console</span>.<span class="fn">log</span>(w);  <span class="cm">// 5</span>
+
+<span class="kw">let</span> a <span class="op">=</span> <span class="num">10</span>;
+a<span class="op">++</span>;         <span class="cm">// add 1  → 11</span>
+a<span class="op">--</span>;         <span class="cm">// take 1 → 10</span></pre>
+        </div>
+        <div>
+          <p class="lead" style="margin-top:0">Use <code class="ic">let</code> when a value needs to change. <code class="ic">const</code> can't be reassigned.</p>
+          <p class="caption">Shortcuts: <code class="ic">+=</code>, <code class="ic">-=</code>, <code class="ic">*=</code>, <code class="ic">/=</code> update in place. <code class="ic">++</code> and <code class="ic">--</code> add or subtract 1. A <code class="ic">let</code> with no value starts as <code class="ic">undefined</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · TEMPLATE LITERALS & TYPEOF -->
+    <section class="slide" data-slug="template-literals" data-section="template literals">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">11</span> / <span class="tag">template literals &amp; typeof</span> --&gt;</p>
+      <h2 class="rise">Drop values into text.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="kw">const</span> myPet <span class="op">=</span> <span class="str">'armadillo'</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`I own a pet ${</span>myPet<span class="str">}.`</span>);
+
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> myPet);</pre>
+        </div>
+        <div class="console">
+          <div class="cbar"><span class="cd" style="background:var(--active)"></span><span class="cd" style="background:#F5B62B"></span><span class="cd" style="background:#38B24A"></span> Console</div>
+          <div class="cbody">
+            <div class="cin"><span class="str">'I own a pet armadillo.'</span></div>
+            <div class="cin"><span class="str">'string'</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">Wrap a string in <b>backticks</b> <code class="ic">` `</code> and insert values with <code class="ic">${ }</code> — cleaner than gluing with <code class="ic">+</code>. <code class="ic">typeof</code> tells you a value's data type.</p>
+    </section>
+
+    <!-- 13 · EVENTS -->
+    <section class="slide" data-slug="events" data-section="events">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">12</span> / <span class="tag">listening for events</span> --&gt;</p>
+      <h2 class="rise">Make the page react.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> index.html + script.js</div>
+<pre><span class="cm">&lt;!-- inline --&gt;</span>
+<span class="op">&lt;button</span> <span class="fn">onclick</span>=<span class="str">"alert('Hi!')"</span><span class="op">&gt;</span>Click<span class="op">&lt;/button&gt;</span>
+
+<span class="cm">// or with a listener</span>
+<span class="kw">const</span> btn <span class="op">=</span> <span class="fn">document</span>.<span class="fn">getElementById</span>(<span class="str">'hi'</span>);
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () <span class="op">=&gt;</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'Hello World!'</span>);
+});</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> click the button — it's live</div>
+          <div class="pv-body">
+            <button class="livebtn" id="ev-btn" onclick="var o=document.getElementById('ev-out');o.insertAdjacentHTML('beforeend','<div class=&quot;l&quot;>&lt; <span class=&quot;str&quot;>\'Hello World!\'</span></div>');o.scrollTop=o.scrollHeight;return false;">Click Me!</button>
+            <div class="miniconsole" id="ev-out"></div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">An <b>event</b> is something that happens — a <code class="ic">click</code>, <code class="ic">hover</code>, or key press — that can trigger your code. Two ways: an inline attribute, or <code class="ic">addEventListener</code> in a script (the cleaner way).</p>
+    </section>
+
+    <!-- 14 · JQUERY SELECT -->
+    <section class="slide" data-slug="jquery-select" data-section="jQuery · select">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">13</span> / <span class="tag">jQuery — a helper library</span> --&gt;</p>
+      <h2 class="rise">Select like CSS, with $.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> add jQuery in &lt;head&gt;, then:</div>
+<pre><span class="fn">$</span>(<span class="str">'p'</span>)          <span class="cm">// all &lt;p&gt; elements</span>
+<span class="fn">$</span>(<span class="str">'.my-class'</span>)  <span class="cm">// class "my-class"</span>
+<span class="fn">$</span>(<span class="str">'#my-id'</span>)     <span class="cm">// id "my-id"</span>
+<span class="fn">$</span>(<span class="str">'div.my-class p'</span>) <span class="cm">// combined</span>
+
+<span class="fn">$</span>(<span class="str">'#my-id'</span>).<span class="fn">hide</span>();  <span class="cm">// then act on it</span></pre>
+        </div>
+        <div>
+          <div class="deflist" style="margin-top:0">
+            <div class="d"><span class="k">$("p")</span><span class="v">by <b>tag</b> — same as CSS <code>p</code>.</span></div>
+            <div class="d"><span class="k">$(".class")</span><span class="v">by <b>class</b> — same as CSS <code>.class</code>.</span></div>
+            <div class="d"><span class="k">$("#id")</span><span class="v">by <b>id</b> — same as CSS <code>#id</code>.</span></div>
+          </div>
+          <p class="caption"><b>jQuery</b> is a JavaScript library that simplifies working with the page. Its <code class="ic">$()</code> selectors mirror the CSS selectors you already know.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · JQUERY ANIMATE -->
+    <section class="slide" data-slug="jquery-animate" data-section="jQuery · animate">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">14</span> / <span class="tag">jQuery animations</span> --&gt;</p>
+      <h2 class="rise">Move &amp; fade with one call.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> script.js</div>
+<pre><span class="fn">$</span>(<span class="str">'button'</span>).<span class="fn">click</span>(<span class="kw">function</span>() {
+  <span class="fn">$</span>(<span class="kw">this</span>).<span class="fn">fadeOut</span>(<span class="str">'slow'</span>);
+});
+
+<span class="cm">// also: fadeIn() slideUp()</span>
+<span class="cm">//       slideDown() animate()</span></pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> click to fade — live demo</div>
+          <div class="pv-body">
+            <div class="fadebox" id="fade-box">fade me</div>
+            <button class="livebtn" id="fade-btn" onclick="var b=document.getElementById('fade-box');b.classList.toggle('gone');this.textContent=b.classList.contains('gone')?'fadeIn()':'fadeOut()';return false;">fadeOut()</button>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">jQuery bundles ready-made animations: <code class="ic">fadeIn/Out</code>, <code class="ic">slideUp/Down</code>, and <code class="ic">animate()</code> for custom motion — the smooth changes we did in CSS, now triggered by code.</p>
+    </section>
+
+    <!-- 16 · RECAP -->
+    <section class="slide" data-slug="recap" data-section="recap">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">javascript review</span> --&gt;</p>
+      <h2 class="rise">Your first JS toolbox.</h2>
+      <div class="chips rise">
+        <span class="chip b">console.log()</span>
+        <span class="chip">comments</span>
+        <span class="chip b">7 data types</span>
+        <span class="chip">+ - * / %</span>
+        <span class="chip p">concatenation</span>
+        <span class="chip">.length</span>
+        <span class="chip">.methods()</span>
+        <span class="chip b">Math</span>
+        <span class="chip p">let / const</span>
+        <span class="chip">+= ++ --</span>
+        <span class="chip p">template literals</span>
+        <span class="chip">typeof</span>
+        <span class="chip b">events</span>
+        <span class="chip b">jQuery $()</span>
+      </div>
+      <p class="talk rise"><b>// the big idea</b> — variables store data, methods act on it, and events run your code in response to the user. This is the foundation everything else builds on.</p>
+    </section>
+
+    <!-- 17 · PRACTICE -->
+    <section class="slide closing" data-slug="try-it" data-section="wrap-up">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">this week — talk to the console</span> --&gt;</p>
+      <h2 class="rise">Write some JavaScript.</h2>
+      <div class="hw rise">
+        <ul>
+          <li>Add a <code>&lt;script&gt;</code> to your project and <code>console.log()</code> a greeting.</li>
+          <li>Make a <b>variable</b> with <code>let</code>, then reassign it.</li>
+          <li>Use a <b>template literal</b> to build a sentence from a variable.</li>
+          <li>Add a <b>button</b> with a <code>click</code> event that logs a message.</li>
+          <li>Curious? Load <b>jQuery</b> and <code>fadeOut()</code> an element on click.</li>
+        </ul>
+      </div>
+      <p class="next rise">&lt;/week-07&gt; · &nbsp;open DevTools (⌥⌘J) and watch it run.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">17</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, i = 0;
+  var bar=document.getElementById('bar'), cur=document.getElementById('cur'), totalEl=document.getElementById('total');
+  var sectName=document.getElementById('sectName'), urlEl=document.getElementById('url');
+  var hint=document.getElementById('hint'), overview=document.getElementById('overview'), ovgrid=document.getElementById('ovgrid');
+  totalEl.textContent = total;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+
+  function render(){
+    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+    var s=slides[i];
+    cur.textContent=pad(i+1);
+    bar.style.width=((i+1)/total*100)+'%';
+    sectName.textContent=s.getAttribute('data-section')||'';
+    urlEl.innerHTML='localhost:1989/<b>week-07</b>/'+(s.getAttribute('data-slug')||'');
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+    Array.prototype.forEach.call(ovgrid.children, function(c,idx){ c.classList.toggle('current', idx===i); });
+  }
+  function go(n){ var nx=Math.max(0,Math.min(total-1,n)); if(nx===i) return; i=nx; render(); }
+  function nextSlide(){ go(i+1); } function prevSlide(){ go(i-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(overview.classList.contains('open')){ if(k==='Escape'||k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); } return; }
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){ nextSlide(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){ prevSlide(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); e.preventDefault(); }
+    else if(k==='End'){ go(total-1); e.preventDefault(); }
+    else if(k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); }
+    else if(k==='f'||k==='F'){ toggleFullscreen(); e.preventDefault(); }
+    else if(k>='1'&&k<='9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(e.target.closest('a, button')) return;
+    if(e.target.closest('.preview')) return; // don't advance when interacting with a live demo
+    var x=e.clientX/window.innerWidth;
+    if(x>0.35) nextSlide(); else prevSlide();
+  });
+
+  var tx=0,ty=0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(e.target.closest && e.target.closest('.preview')) return;
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?nextSlide():prevSlide(); }
+  }, {passive:true});
+
+  var fsBtn=document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el=document.documentElement;
+    if(!fsElement()){
+      var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+      if(req){ var r=req.call(el); if(r&&r.catch) r.catch(function(){}); }
+    } else {
+      var exit=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;
+      if(exit){ var e2=exit.call(document); if(e2&&e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on=!!fsElement();
+    if(fsBtn){ fsBtn.textContent=on?'⤢':'⛶'; fsBtn.title=on?'Exit fullscreen (F)':'Fullscreen (F)'; }
+  }
+  if(fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  slides.forEach(function(s,idx){
+    var b=document.createElement('button');
+    b.className='ovcard';
+    var title=(s.querySelector('h1, h2')||{}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML='<span class="oi">'+pad(idx+1)+' · '+(s.getAttribute('data-section')||'')+'</span>'+
+                '<span class="ot">'+title.replace(/\s+/g,' ').trim()+'</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  setTimeout(function(){ hint.style.opacity='0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity='1'; clearTimeout(hint._t);
+    hint._t=setTimeout(function(){ hint.style.opacity='0'; }, 2600);
+  });
+
+  var start=parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i=start-1;
+  render();
+})();
+</script>
+</body>
+</html>

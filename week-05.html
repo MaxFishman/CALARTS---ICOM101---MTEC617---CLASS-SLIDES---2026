@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 05 · Position, Color &amp; Motion — ICOM101 / MTEC617</title>
+<meta name="description" content="Week 5 slideshow for Intro to Web Development (ICOM101 / MTEC617), CalArts — CSS positioning, color & backgrounds, and transitions." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 05 · POSITION, COLOR & MOTION
+     Same identity as Weeks 01–04. This lesson is about movement,
+     so several previews are live: real hover states, a real
+     sticky header, and looping timing-function demos.
+     ============================================================ */
+
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  /* ---------- deck frame ---------- */
+  .deck{ position:fixed; inset:clamp(10px,2.4vw,30px); background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); display:flex; flex-direction:column; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; } .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{ position:absolute; inset:0; padding:clamp(22px,3.8vw,60px); display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s; overflow:auto; }
+  .slide.active{ opacity:1; visibility:visible; transform:none; transition:opacity .55s var(--ease), transform .55s var(--ease); z-index:2; }
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; } .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; } .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; } .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,15px); color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(12px,1.7vw,22px); }
+  .eyebrow .num{ color:var(--active); } .eyebrow .tag{ color:var(--link); }
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(28px,4.6vw,58px); }
+  .lead{ font-size:clamp(16px,1.75vw,23px); line-height:1.45; max-width:58ch; color:var(--ink); margin:clamp(12px,1.8vw,24px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+  code.ic{ font-family:var(--f-mono); font-size:.9em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  .talk{ margin-top:clamp(14px,2vw,26px); border-left:3px solid var(--visited); padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.05vw,14.5px); color:var(--muted); line-height:1.7; max-width:72ch; }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98; font-size:clamp(40px,7.8vw,110px);
+    color:var(--link); text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px); text-underline-offset:clamp(6px,1.2vw,16px); }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- code snippet + rendered preview ---------- */
+  .codepair{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.2vw,30px); margin-top:clamp(14px,2vw,26px); align-items:start; }
+  .codepair.solo{ grid-template-columns:1fr; max-width:72ch; }
+  @media (max-width:860px){ .codepair{ grid-template-columns:1fr; } }
+
+  .snippet{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; background:var(--card); box-shadow:5px 6px 0 rgba(0,0,0,.12); }
+  .snippet .bar{ display:flex; align-items:center; gap:8px; padding:8px 13px; background:var(--chrome); border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .snippet .bar .fdot{ width:9px; height:9px; border-radius:50%; border:1.2px solid var(--ink); }
+  .snippet pre{ margin:0; padding:clamp(14px,1.7vw,22px); overflow-x:auto; font-family:var(--f-mono);
+    font-size:clamp(12.5px,1.28vw,17px); line-height:1.7; color:var(--ink); }
+  .t{ color:var(--link); } .att{ color:var(--active); } .sel{ color:var(--link); } .prop{ color:var(--active); }
+  .val{ color:var(--visited); } .cm{ color:var(--muted); font-style:italic; } .pun{ color:var(--muted); }
+
+  /* rendered "browser output" — always reads as a real webpage, light in both themes */
+  .preview{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; box-shadow:5px 6px 0 var(--link); }
+  .preview .pv-bar{ display:flex; align-items:center; gap:7px; padding:8px 13px; background:#e9e9ef; border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:11.5px; color:#7a7a86; }
+  .preview .pv-bar .d{ width:9px; height:9px; border-radius:50%; background:#c7c7d0; }
+  .preview .pv-body{ background:#ffffff; color:#1a1a1f; padding:clamp(16px,2vw,26px); font-family:var(--f-body);
+    font-size:clamp(14px,1.4vw,18px); line-height:1.5; min-height:70px; }
+  .caption{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:12px; line-height:1.55; max-width:62ch; }
+  .caption b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- ruleset / offset diagram ---------- */
+  .deflist{ display:grid; gap:clamp(10px,1.4vw,16px); }
+  .deflist .d{ display:grid; grid-template-columns:minmax(90px,auto) 1fr; gap:clamp(12px,1.6vw,22px); align-items:baseline;
+    border-bottom:1.3px dashed var(--line); padding-bottom:clamp(9px,1.3vw,14px); }
+  .deflist .d:last-child{ border-bottom:0; }
+  .deflist .k{ font-family:var(--f-mono); font-size:clamp(12.5px,1.3vw,17px); font-weight:500; color:var(--active); }
+  .deflist .v{ font-size:clamp(13px,1.4vw,18px); line-height:1.4; color:var(--ink); }
+
+  /* ---------- demo helpers (inside pv-body, fixed light colors) ---------- */
+  .pv-body .stage-box{ position:relative; height:150px; background:#f1f1f7; border:1px dashed #b7b7c2; border-radius:6px; overflow:hidden; }
+  .pv-body .ghost{ position:absolute; top:14px; left:14px; width:88px; height:60px; border:2px dashed #b0b0be; border-radius:6px;
+    display:flex; align-items:center; justify-content:center; font-family:var(--f-mono); font-size:10px; color:#9a9aa6; text-align:center; }
+  .pv-body .movedbox{ position:absolute; top:14px; left:14px; width:88px; height:60px; background:#2fae54; border-radius:6px;
+    transform:translate(120px,44px); box-shadow:4px 5px 0 rgba(0,0,0,.12); }
+  .pv-body .layers .lb{ position:absolute; width:96px; height:70px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:var(--f-mono); font-size:12px; }
+  .pv-body .layers .blue{ background:#1B10E6; top:26px; left:30px; z-index:2; }
+  .pv-body .layers .green{ background:#2fae54; top:56px; left:96px; z-index:1; }
+
+  /* live sticky demo */
+  .pv-body.scroll{ height:210px; overflow-y:auto; padding:0; }
+  .pv-body.scroll .stick{ position:sticky; top:0; background:#1B10E6; color:#fff; font-family:var(--f-display); font-weight:600;
+    padding:10px 16px; font-size:15px; box-shadow:0 2px 0 rgba(0,0,0,.1); }
+  .pv-body.scroll .content{ padding:14px 16px; }
+  .pv-body.scroll .content p{ margin:0 0 12px; }
+
+  /* live hover states */
+  .pv-body .demo-link{ color:#7A1FA2; text-decoration:underline dotted; transition:color .3s var(--ease), text-decoration-color .3s var(--ease); font-weight:500; }
+  .pv-body .demo-link:hover{ color:#B8860B; text-decoration:underline solid; }
+  .pv-body .demo-btn{ display:inline-block; cursor:pointer; border:none; font-family:var(--f-display); font-weight:600; font-size:16px;
+    color:#fff; background:#1B10E6; padding:12px 22px; border-radius:8px; transition:all .4s var(--ease); }
+  .pv-body .demo-btn:hover{ background:#7A1FA2; transform:translateY(-3px) scale(1.05); box-shadow:0 8px 18px rgba(122,31,162,.35); }
+
+  /* opacity demo */
+  .pv-body .op-wrap{ position:relative; height:120px; border-radius:6px; overflow:hidden; background:linear-gradient(135deg,#1B10E6,#7A1FA2); }
+  .pv-body .op-wrap .overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#fff; opacity:.5;
+    font-family:var(--f-mono); font-size:13px; color:#111; }
+
+  /* gradient demo */
+  .pv-body .grad{ height:66px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--f-mono); font-size:12px; }
+  .pv-body .grad.lin{ background:linear-gradient(to right, #EE382B, #1B10E6); }
+  .pv-body .grad.rad{ background:radial-gradient(circle at center, #EE382B, #1B10E6); }
+
+  /* timing function demo (self-animating) */
+  .tfdemo{ display:grid; gap:10px; }
+  .tfdemo .row{ display:grid; grid-template-columns:78px 1fr; align-items:center; gap:12px; }
+  .tfdemo .lbl{ font-family:var(--f-mono); font-size:13px; color:#1B10E6; }
+  .tfdemo .track{ position:relative; height:14px; background:#eef; border-radius:999px; }
+  .tfdemo .dot{ position:absolute; top:1px; left:1px; width:12px; height:12px; border-radius:50%; background:#7A1FA2;
+    animation:tfslide 2.6s infinite; }
+  .tfdemo .dot.linear{ animation-timing-function:linear; }
+  .tfdemo .dot.ease{ animation-timing-function:ease; }
+  .tfdemo .dot.easein{ animation-timing-function:ease-in; }
+  .tfdemo .dot.easeout{ animation-timing-function:ease-out; }
+  @keyframes tfslide{ 0%{ left:1px; } 45%{ left:calc(100% - 13px); } 55%{ left:calc(100% - 13px); } 100%{ left:1px; } }
+
+  /* ---------- roadmap / three-up cards ---------- */
+  .semgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2vw,26px); margin-top:clamp(14px,2vw,26px); }
+  @media (max-width:860px){ .semgrid{ grid-template-columns:1fr; } }
+  .semcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(18px,2.2vw,28px); background:var(--card); display:flex; flex-direction:column; gap:10px; }
+  .semcard .no{ font-family:var(--f-mono); font-weight:700; font-size:clamp(20px,2.6vw,32px); color:var(--active); line-height:1; }
+  .semcard .tg{ font-family:var(--f-display); font-weight:600; font-size:clamp(17px,2vw,25px); color:var(--link); }
+  .semcard p{ margin:0; font-size:clamp(13px,1.35vw,17px); line-height:1.45; color:var(--muted); }
+  .semcard .mini{ margin-top:auto; font-family:var(--f-mono); font-size:clamp(11px,1.05vw,13.5px); color:var(--visited); }
+
+  /* ---------- recap chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,13px); margin-top:clamp(16px,2.2vw,28px); max-width:86ch; }
+  .chip{ font-family:var(--f-mono); font-size:clamp(13px,1.3vw,18px); padding:clamp(7px,.9vw,12px) clamp(11px,1.3vw,18px);
+    border:1.5px solid var(--ink); border-radius:999px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .closing .next{ margin-top:clamp(18px,2.4vw,32px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- practice ---------- */
+  .hw ul{ margin:clamp(14px,2vw,24px) 0 0; padding-left:1.25em; display:grid; gap:clamp(9px,1.3vw,14px);
+    font-size:clamp(14.5px,1.55vw,21px); line-height:1.4; max-width:66ch; }
+  .hw ul b{ color:var(--visited); }
+
+  /* ---------- footer / controls ---------- */
+  .footer{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:9px 16px; background:var(--chrome);
+    border-top:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; } .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{ font-family:var(--f-mono); font-size:14px; line-height:1; width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink); border:1.4px solid var(--ink); border-radius:6px; }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40; font-family:var(--f-mono); font-size:11.5px;
+    color:var(--muted); background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px; box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px);
+    padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px;
+    min-height:110px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; } .progress .bar{ transition:none; }
+    .tfdemo .dot{ animation:none !important; left:calc(50% - 6px) !important; }
+    .pv-body .demo-btn,.pv-body .demo-link{ transition:none !important; }
+  }
+  @media (max-width:560px){ .chrome .brand{ display:none; } .footer .sect{ display:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Week 5 slideshow">
+
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-05</b>/position-color-motion</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="position-color-motion" data-section="cover">
+      <p class="doctype rise">&lt;style&gt; <b>/* place it, paint it, move it */</b> &lt;/style&gt;</p>
+      <h1 class="titlelink rise">Position,<br>Color &amp; Motion<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>05</b></span>
+        <span>CalArts <b>· Spring ’23</b></span>
+      </div>
+    </section>
+
+    <!-- 2 · ROADMAP -->
+    <section class="slide" data-slug="todays-menu" data-section="today">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">today, in three acts</span> --&gt;</p>
+      <h2 class="rise">Place it, paint it, move it.</h2>
+      <div class="semgrid rise">
+        <div class="semcard">
+          <span class="no">01</span>
+          <span class="tg">Positioning</span>
+          <p>Move elements off their default spot, and stack them with layers.</p>
+          <span class="mini">relative · fixed · sticky · z-index</span>
+        </div>
+        <div class="semcard">
+          <span class="no">02</span>
+          <span class="tg">Color &amp; Backgrounds</span>
+          <p>Foreground and background color, transparency, images, gradients.</p>
+          <span class="mini">color · opacity · background-image</span>
+        </div>
+        <div class="semcard">
+          <span class="no">03</span>
+          <span class="tg">Transitions</span>
+          <p>Animate state changes smoothly instead of snapping instantly.</p>
+          <span class="mini">duration · timing · delay</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · THE POSITION PROPERTY -->
+    <section class="slide" data-slug="the-position-property" data-section="position">
+      <p class="eyebrow rise">&lt;!-- <span class="num">01</span> / <span class="tag">the position property</span> --&gt;</p>
+      <h2 class="rise">Break out of the default flow.</h2>
+      <p class="lead rise">By default every element is <code class="ic">position: static</code> — it sits where the normal document flow puts it. Change <code class="ic">position</code> and you unlock four <em class="hl">offset properties</em> to nudge it around:</p>
+      <div class="deflist rise" style="margin-top:clamp(14px,2vw,24px);max-width:60ch">
+        <div class="d"><span class="k">top</span><span class="v">moves the element down from the top.</span></div>
+        <div class="d"><span class="k">bottom</span><span class="v">moves it up from the bottom.</span></div>
+        <div class="d"><span class="k">left</span><span class="v">moves it away from the left (to the right).</span></div>
+        <div class="d"><span class="k">right</span><span class="v">moves it away from the right (to the left).</span></div>
+      </div>
+      <p class="caption rise">Values in px, em, or % — but offsets do <b>nothing</b> while <code class="ic">position</code> is still <code class="ic">static</code>.</p>
+    </section>
+
+    <!-- 4 · RELATIVE -->
+    <section class="slide" data-slug="position-relative" data-section="relative">
+      <p class="eyebrow rise">&lt;!-- <span class="num">02</span> / <span class="tag">position: relative</span> --&gt;</p>
+      <h2 class="rise">Nudge from where it was.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.green-box</span> {
+  <span class="prop">background-color</span>: <span class="val">green</span>;
+  <span class="prop">position</span>: <span class="val">relative</span>;
+  <span class="prop">top</span>: <span class="val">50px</span>;
+  <span class="prop">left</span>: <span class="val">120px</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body"><div class="stage-box"><div class="ghost">original spot</div><div class="movedbox"></div></div></div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">relative</code> positions an element <b>relative to its own default spot</b> — here, 50px down and 120px right. The space it used to occupy is left behind (the dashed outline).</p>
+    </section>
+
+    <!-- 5 · FIXED -->
+    <section class="slide" data-slug="position-fixed" data-section="fixed">
+      <p class="eyebrow rise">&lt;!-- <span class="num">03</span> / <span class="tag">position: fixed</span> --&gt;</p>
+      <h2 class="rise">Pin it to the screen.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.title</span> {
+  <span class="prop">position</span>: <span class="val">fixed</span>;
+  <span class="prop">top</span>: <span class="val">0px</span>;
+  <span class="prop">left</span>: <span class="val">0px</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> a fixed header</div>
+          <div class="pv-body scroll">
+            <div class="stick">My Awesome Website ← stays put</div>
+            <div class="content">
+              <p>Hello World! I'm learning to make a website with HTML and CSS.</p>
+              <p>Scroll this little window…</p>
+              <p>…and notice the blue bar never moves.</p>
+              <p>A fixed element is removed from the flow and pinned to the viewport.</p>
+              <p>This website is in progress. Please come back later!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">fixed</code> locks an element to a spot on the screen — it <b>ignores scrolling</b>. Great for headers, nav bars, and "back to top" buttons.</p>
+    </section>
+
+    <!-- 6 · STICKY -->
+    <section class="slide" data-slug="position-sticky" data-section="sticky">
+      <p class="eyebrow rise">&lt;!-- <span class="num">04</span> / <span class="tag">position: sticky</span> --&gt;</p>
+      <h2 class="rise">The best of both.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.box-bottom</span> {
+  <span class="prop">background-color</span>: <span class="val">darkgreen</span>;
+  <span class="prop">position</span>: <span class="val">sticky</span>;
+  <span class="prop">top</span>: <span class="val">240px</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> scroll me — real sticky</div>
+          <div class="pv-body scroll">
+            <div class="content"><p>Scroll down inside this window.</p><p>The blue bar below flows normally at first…</p></div>
+            <div class="stick">📌 sticky — sticks at the top</div>
+            <div class="content">
+              <p>…then sticks to the top once you reach it.</p>
+              <p>Keep scrolling.</p>
+              <p>It stays pinned while its container is in view.</p>
+              <p>When the container ends, it "unsticks" and scrolls away.</p>
+              <p>This website is in progress. Please come back later!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">sticky</code> scrolls normally until it hits your offset (<code class="ic">top: 240px</code>), then <b>sticks</b> there until its parent scrolls past.</p>
+    </section>
+
+    <!-- 7 · Z-INDEX -->
+    <section class="slide" data-slug="z-index" data-section="z-index">
+      <p class="eyebrow rise">&lt;!-- <span class="num">05</span> / <span class="tag">z-index — stacking order</span> --&gt;</p>
+      <h2 class="rise">Which box is on top?</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.blue-box</span> {
+  <span class="prop">position</span>: <span class="val">relative</span>;
+  <span class="prop">z-index</span>: <span class="val">2</span>;
+}
+<span class="sel">.green-box</span> {
+  <span class="prop">position</span>: <span class="val">relative</span>;
+  <span class="prop">z-index</span>: <span class="val">1</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body"><div class="stage-box" style="height:130px"><div class="layers"><div class="lb blue">z-index: 2</div><div class="lb green">z-index: 1</div></div></div></div>
+        </div>
+      </div>
+      <p class="caption rise">When positioned boxes overlap, <code class="ic">z-index</code> sets their <b>depth</b> — a higher number sits in front. Think of it as how close a layer is to you.</p>
+    </section>
+
+    <!-- 8 · COLOR & BACKGROUND -->
+    <section class="slide" data-slug="color-background" data-section="color">
+      <p class="eyebrow rise">&lt;!-- <span class="num">06</span> / <span class="tag">foreground vs background color</span> --&gt;</p>
+      <h2 class="rise">Two colors, two properties.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">h1</span> {
+  <span class="prop">color</span>: <span class="val">red</span>;            <span class="cm">/* the text */</span>
+  <span class="prop">background-color</span>: <span class="val">gold</span>; <span class="cm">/* behind it */</span>
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body"><h1 style="color:#d81c1c;background:gold;display:inline-block;padding:8px 14px;margin:0;border-radius:4px">Hello World!</h1></div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">color</code> sets the <b>foreground</b> (usually the text). <code class="ic">background-color</code> paints the box <b>behind</b> it.</p>
+    </section>
+
+    <!-- 9 · OPACITY -->
+    <section class="slide" data-slug="opacity" data-section="opacity">
+      <p class="eyebrow rise">&lt;!-- <span class="num">07</span> / <span class="tag">opacity — transparency</span> --&gt;</p>
+      <h2 class="rise">From invisible to solid.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.overlay</span> {
+  <span class="prop">opacity</span>: <span class="val">0.5</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> a 50% white overlay</div>
+          <div class="pv-body"><div class="op-wrap"><div class="overlay">opacity: 0.5</div></div></div>
+        </div>
+      </div>
+      <p class="caption rise">Opacity runs from <code class="ic">0</code> (fully invisible) to <code class="ic">1</code> (fully solid). <code class="ic">0.5</code> is half-transparent — perfect for overlays that let the layer behind show through.</p>
+    </section>
+
+    <!-- 10 · BACKGROUND IMAGE -->
+    <section class="slide" data-slug="background-image" data-section="background image">
+      <p class="eyebrow rise">&lt;!-- <span class="num">08</span> / <span class="tag">background-image</span> --&gt;</p>
+      <h2 class="rise">Put a picture behind it.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="cm">/* a file inside your project */</span>
+<span class="sel">.main-banner</span> {
+  <span class="prop">background-image</span>: <span class="val">url('images/mountains.jpg')</span>;
+}
+
+<span class="cm">/* …or a link on the web */</span>
+<span class="prop">background-image</span>: <span class="val">url('https://…/photo.jpg')</span>;</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body"><div style="height:120px;border-radius:6px;background:linear-gradient(135deg,#5b7cff,#2fae54);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--f-display);font-weight:600;font-size:18px">My Awesome Website</div></div>
+        </div>
+      </div>
+      <p class="caption rise">The value is a <code class="ic">url(…)</code> — a <b>relative path</b> to a file in your project (<code class="ic">images/mountains.jpg</code>) or a full web address. <span style="opacity:.75">(Preview shows a stand-in.)</span></p>
+    </section>
+
+    <!-- 11 · GRADIENTS -->
+    <section class="slide" data-slug="gradients" data-section="gradients">
+      <p class="eyebrow rise">&lt;!-- <span class="num">09</span> / <span class="tag">gradients — color, blended</span> --&gt;</p>
+      <h2 class="rise">Backgrounds that blend.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="prop">background</span>: <span class="val">linear-gradient(to right, red, blue)</span>;
+
+<span class="prop">background</span>: <span class="val">radial-gradient(circle, red, blue)</span>;</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> output</div>
+          <div class="pv-body" style="display:grid;gap:12px">
+            <div class="grad lin">linear-gradient → left to right</div>
+            <div class="grad rad">radial-gradient → out from center</div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">A gradient is a smooth blend between colors — no image file needed. <code class="ic">linear</code> runs in a direction; <code class="ic">radial</code> spreads out from a point.</p>
+    </section>
+
+    <!-- 12 · HOVER STATES -->
+    <section class="slide" data-slug="hover-states" data-section="hover">
+      <p class="eyebrow rise">&lt;!-- <span class="num">10</span> / <span class="tag">state changes: :hover</span> --&gt;</p>
+      <h2 class="rise">Styles that react.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">a</span> {
+  <span class="prop">color</span>: <span class="val">purple</span>;
+  <span class="prop">text-decoration</span>: <span class="val">underline dotted</span>;
+}
+<span class="sel">a<span class="pun">:hover</span></span> {
+  <span class="prop">color</span>: <span class="val">goldenrod</span>;
+  <span class="prop">text-decoration</span>: <span class="val">underline</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> hover the link →</div>
+          <div class="pv-body" style="display:flex;align-items:center;min-height:110px"><p style="margin:0">Read our <a href="#" onclick="return false" class="demo-link">latest article</a> to learn more.</p></div>
+        </div>
+      </div>
+      <p class="caption rise"><code class="ic">:hover</code> applies styles only while the pointer is over an element — a <b>state change</b>. Right now that change snaps instantly… let's make it smooth.</p>
+    </section>
+
+    <!-- 13 · TRANSITIONS INTRO -->
+    <section class="slide" data-slug="transitions" data-section="transitions">
+      <p class="eyebrow rise">&lt;!-- <span class="num">11</span> / <span class="tag">CSS transitions</span> --&gt;</p>
+      <h2 class="rise">Animate the change.</h2>
+      <p class="lead rise">A <em class="hl">transition</em> controls how a state change <i>happens</i> over time — instead of snapping, it eases. You can control four things:</p>
+      <div class="deflist rise" style="margin-top:clamp(14px,2vw,22px);max-width:60ch">
+        <div class="d"><span class="k">property</span><span class="v">which CSS property animates.</span></div>
+        <div class="d"><span class="k">duration</span><span class="v">how long it takes.</span></div>
+        <div class="d"><span class="k">timing</span><span class="v">how it accelerates.</span></div>
+        <div class="d"><span class="k">delay</span><span class="v">how long to wait before it starts.</span></div>
+      </div>
+      <p class="talk rise"><b>// hover the buttons on the next slides</b> — the demos are live.</p>
+    </section>
+
+    <!-- 14 · DURATION -->
+    <section class="slide" data-slug="transition-duration" data-section="duration">
+      <p class="eyebrow rise">&lt;!-- <span class="num">12</span> / <span class="tag">property + duration</span> --&gt;</p>
+      <h2 class="rise">The two essentials.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="sel">.btn</span> {
+  <span class="prop">transition-property</span>: <span class="val">all</span>;
+  <span class="prop">transition-duration</span>: <span class="val">0.4s</span>;
+}</pre>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> hover the button →</div>
+          <div class="pv-body" style="display:flex;align-items:center;justify-content:center;min-height:110px"><button class="demo-btn" onclick="return false">Hover me</button></div>
+        </div>
+      </div>
+      <p class="caption rise">A transition needs at least a <b>property</b> and a <b>duration</b>. Time is in seconds or milliseconds — <code class="ic">1s</code>, <code class="ic">0.4s</code>, <code class="ic">400ms</code>. (A blink is ~400ms — a good gut-check for "snappy.")</p>
+    </section>
+
+    <!-- 15 · TIMING FUNCTION -->
+    <section class="slide" data-slug="timing-function" data-section="timing">
+      <p class="eyebrow rise">&lt;!-- <span class="num">13</span> / <span class="tag">transition-timing-function</span> --&gt;</p>
+      <h2 class="rise">The pace of the motion.</h2>
+      <div class="codepair rise">
+        <div class="deflist" style="margin-top:0">
+          <div class="d"><span class="k" style="color:var(--visited)">ease</span><span class="v">slow → fast → slow. <b>The default.</b></span></div>
+          <div class="d"><span class="k" style="color:var(--visited)">linear</span><span class="v">constant speed the whole way.</span></div>
+          <div class="d"><span class="k" style="color:var(--visited)">ease-in</span><span class="v">starts slow, accelerates, stops abruptly.</span></div>
+          <div class="d"><span class="k" style="color:var(--visited)">ease-out</span><span class="v">starts abruptly, slows to a gentle stop.</span></div>
+        </div>
+        <div class="preview">
+          <div class="pv-bar"><span class="d"></span><span class="d"></span><span class="d"></span> same distance, different pace</div>
+          <div class="pv-body">
+            <div class="tfdemo">
+              <div class="row"><span class="lbl">ease</span><div class="track"><div class="dot ease"></div></div></div>
+              <div class="row"><span class="lbl">linear</span><div class="track"><div class="dot linear"></div></div></div>
+              <div class="row"><span class="lbl">ease-in</span><div class="track"><div class="dot easein"></div></div></div>
+              <div class="row"><span class="lbl">ease-out</span><div class="track"><div class="dot easeout"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">All four dots travel the same distance in the same time — only the <b>pacing</b> differs.</p>
+    </section>
+
+    <!-- 16 · DELAY -->
+    <section class="slide" data-slug="transition-delay" data-section="delay">
+      <p class="eyebrow rise">&lt;!-- <span class="num">14</span> / <span class="tag">transition-delay</span> --&gt;</p>
+      <h2 class="rise">Wait, then go.</h2>
+      <div class="codepair solo rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="prop">transition-property</span>: <span class="val">width</span>;
+<span class="prop">transition-duration</span>: <span class="val">750ms</span>;
+<span class="prop">transition-delay</span>: <span class="val">250ms</span>;</pre>
+        </div>
+      </div>
+      <p class="caption rise">Here a width change <b>waits 250ms</b>, then animates over 750ms. Default delay is <code class="ic">0s</code> — no wait.</p>
+    </section>
+
+    <!-- 17 · SHORTHAND -->
+    <section class="slide" data-slug="transition-shorthand" data-section="shorthand">
+      <p class="eyebrow rise">&lt;!-- <span class="num">15</span> / <span class="tag">the transition shorthand</span> --&gt;</p>
+      <h2 class="rise">All four, one line.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="cm">/* property duration timing delay */</span>
+<span class="prop">transition</span>: <span class="val">color 1.5s linear 0.5s</span>;
+
+<span class="cm">/* chain several with commas */</span>
+<span class="prop">transition</span>: <span class="val">color 1s linear,
+            font-size 750ms ease-in 100ms</span>;
+
+<span class="cm">/* animate everything the same way */</span>
+<span class="prop">transition</span>: <span class="val">all 1.5s linear 0.5s</span>;</pre>
+        </div>
+        <div>
+          <div class="deflist" style="margin-top:0">
+            <div class="d"><span class="k" style="color:var(--ink)">order matters</span><span class="v">property → duration → timing → delay.</span></div>
+            <div class="d"><span class="k" style="color:var(--ink)">comma =</span><span class="v">combine different transitions in one rule.</span></div>
+            <div class="d"><span class="k" style="color:var(--ink)">all</span><span class="v">apply the same transition to every changing property.</span></div>
+          </div>
+          <p class="caption">Gotcha: to set a <b>delay</b> you must also set <b>duration</b> — the browser reads the first time value as the duration.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · RECAP -->
+    <section class="slide" data-slug="recap" data-section="recap">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">what we learned today</span> --&gt;</p>
+      <h2 class="rise">Place it, paint it, move it.</h2>
+      <div class="chips rise">
+        <span class="chip b">position: relative</span>
+        <span class="chip b">fixed</span>
+        <span class="chip b">sticky</span>
+        <span class="chip">top / bottom / left / right</span>
+        <span class="chip p">z-index</span>
+        <span class="chip">color</span>
+        <span class="chip">background-color</span>
+        <span class="chip p">opacity</span>
+        <span class="chip">background-image</span>
+        <span class="chip">gradients</span>
+        <span class="chip b">:hover</span>
+        <span class="chip p">transition</span>
+        <span class="chip">duration / timing / delay</span>
+        <span class="chip b">all</span>
+      </div>
+      <p class="talk rise"><b>// the big idea</b> — positioning places things, color gives them life, and transitions make change feel smooth instead of sudden.</p>
+    </section>
+
+    <!-- 19 · PRACTICE -->
+    <section class="slide closing" data-slug="try-it" data-section="wrap-up">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">this week — bring it to life</span> --&gt;</p>
+      <h2 class="rise">Make it move.</h2>
+      <div class="hw rise">
+        <ul>
+          <li>Add a <b>fixed</b> or <b>sticky</b> header to your project.</li>
+          <li>Give an element a <b>background-color</b>, <b>background-image</b>, or <b>gradient</b>.</li>
+          <li>Style a link's <code class="ic">:hover</code> state.</li>
+          <li>Add a <b>transition</b> so that hover change eases in smoothly.</li>
+          <li>Curious? Overlap two boxes and control them with <b>z-index</b>.</li>
+        </ul>
+      </div>
+      <p class="next rise">&lt;/week-05&gt; · &nbsp;small motion, big polish.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">19</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, i = 0;
+  var bar=document.getElementById('bar'), cur=document.getElementById('cur'), totalEl=document.getElementById('total');
+  var sectName=document.getElementById('sectName'), urlEl=document.getElementById('url');
+  var hint=document.getElementById('hint'), overview=document.getElementById('overview'), ovgrid=document.getElementById('ovgrid');
+  totalEl.textContent = total;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+
+  function render(){
+    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+    var s=slides[i];
+    cur.textContent=pad(i+1);
+    bar.style.width=((i+1)/total*100)+'%';
+    sectName.textContent=s.getAttribute('data-section')||'';
+    urlEl.innerHTML='localhost:1989/<b>week-05</b>/'+(s.getAttribute('data-slug')||'');
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+    Array.prototype.forEach.call(ovgrid.children, function(c,idx){ c.classList.toggle('current', idx===i); });
+  }
+  function go(n){ var nx=Math.max(0,Math.min(total-1,n)); if(nx===i) return; i=nx; render(); }
+  function nextSlide(){ go(i+1); } function prevSlide(){ go(i-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(overview.classList.contains('open')){ if(k==='Escape'||k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); } return; }
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){ nextSlide(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){ prevSlide(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); e.preventDefault(); }
+    else if(k==='End'){ go(total-1); e.preventDefault(); }
+    else if(k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); }
+    else if(k==='f'||k==='F'){ toggleFullscreen(); e.preventDefault(); }
+    else if(k>='1'&&k<='9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(e.target.closest('a, button')) return;
+    // don't advance when clicking inside a scrollable preview (sticky/fixed demos)
+    if(e.target.closest('.pv-body.scroll')) return;
+    var x=e.clientX/window.innerWidth;
+    if(x>0.35) nextSlide(); else prevSlide();
+  });
+
+  var tx=0,ty=0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(e.target.closest && e.target.closest('.pv-body.scroll')) return;
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?nextSlide():prevSlide(); }
+  }, {passive:true});
+
+  var fsBtn=document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el=document.documentElement;
+    if(!fsElement()){
+      var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+      if(req){ var r=req.call(el); if(r&&r.catch) r.catch(function(){}); }
+    } else {
+      var exit=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;
+      if(exit){ var e2=exit.call(document); if(e2&&e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on=!!fsElement();
+    if(fsBtn){ fsBtn.textContent=on?'⤢':'⛶'; fsBtn.title=on?'Exit fullscreen (F)':'Fullscreen (F)'; }
+  }
+  if(fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  slides.forEach(function(s,idx){
+    var b=document.createElement('button');
+    b.className='ovcard';
+    var title=(s.querySelector('h1, h2')||{}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML='<span class="oi">'+pad(idx+1)+' · '+(s.getAttribute('data-section')||'')+'</span>'+
+                '<span class="ot">'+title.replace(/\s+/g,' ').trim()+'</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  setTimeout(function(){ hint.style.opacity='0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity='1'; clearTimeout(hint._t);
+    hint._t=setTimeout(function(){ hint.style.opacity='0'; }, 2600);
+  });
+
+  var start=parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i=start-1;
+  render();
+})();
+</script>
+</body>
+</html>

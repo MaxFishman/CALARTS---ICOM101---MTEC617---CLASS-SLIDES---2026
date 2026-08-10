@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 04 · Responsive Web Design — ICOM101 / MTEC617</title>
+<meta name="description" content="Week 4 slideshow for Intro to Web Development (ICOM101 / MTEC617), CalArts — Responsive Web Design." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 04 · RESPONSIVE WEB DESIGN
+     Same identity as Weeks 01–03. New signature: device frames
+     (phone / tablet / desktop) that make breakpoints tangible.
+     ============================================================ */
+
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  /* ---------- deck frame ---------- */
+  .deck{ position:fixed; inset:clamp(10px,2.4vw,30px); background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); display:flex; flex-direction:column; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; } .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{ position:absolute; inset:0; padding:clamp(22px,3.8vw,60px); display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s; overflow:auto; }
+  .slide.active{ opacity:1; visibility:visible; transform:none; transition:opacity .55s var(--ease), transform .55s var(--ease); z-index:2; }
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; } .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; } .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; } .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,15px); color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(12px,1.7vw,22px); }
+  .eyebrow .num{ color:var(--active); } .eyebrow .tag{ color:var(--link); }
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(28px,4.6vw,58px); }
+  .lead{ font-size:clamp(16px,1.75vw,23px); line-height:1.45; max-width:58ch; color:var(--ink); margin:clamp(12px,1.8vw,24px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+  code.ic{ font-family:var(--f-mono); font-size:.9em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  .talk{ margin-top:clamp(14px,2vw,26px); border-left:3px solid var(--visited); padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.05vw,14.5px); color:var(--muted); line-height:1.7; max-width:70ch; }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98; font-size:clamp(38px,7.4vw,104px);
+    color:var(--link); text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px); text-underline-offset:clamp(6px,1.2vw,16px); }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- code snippet + rendered preview ---------- */
+  .codepair{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.2vw,30px); margin-top:clamp(14px,2vw,26px); align-items:start; }
+  .codepair.solo{ grid-template-columns:1fr; max-width:72ch; }
+  @media (max-width:860px){ .codepair{ grid-template-columns:1fr; } }
+
+  .snippet{ border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; background:var(--card); box-shadow:5px 6px 0 rgba(0,0,0,.12); }
+  .snippet .bar{ display:flex; align-items:center; gap:8px; padding:8px 13px; background:var(--chrome); border-bottom:1.4px solid var(--ink);
+    font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .snippet .bar .fdot{ width:9px; height:9px; border-radius:50%; border:1.2px solid var(--ink); }
+  .snippet pre{ margin:0; padding:clamp(14px,1.7vw,22px); overflow-x:auto; font-family:var(--f-mono);
+    font-size:clamp(12.5px,1.28vw,17px); line-height:1.7; color:var(--ink); }
+  .t{ color:var(--link); } .att{ color:var(--active); } .sel{ color:var(--link); } .prop{ color:var(--active); }
+  .val{ color:var(--visited); } .cm{ color:var(--muted); font-style:italic; } .pun{ color:var(--muted); } .kw{ color:var(--active); }
+
+  .caption{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:12px; line-height:1.55; max-width:62ch; }
+  .caption b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- media query anatomy ---------- */
+  .rsdiagram{ font-family:var(--f-mono); font-weight:500; font-size:clamp(15px,2.1vw,26px); line-height:1.55; }
+  .deflist{ display:grid; gap:clamp(11px,1.5vw,18px); }
+  .deflist .d{ display:grid; grid-template-columns:minmax(120px,auto) 1fr; gap:clamp(12px,1.6vw,22px); align-items:baseline;
+    border-bottom:1.3px dashed var(--line); padding-bottom:clamp(10px,1.4vw,16px); }
+  .deflist .d:last-child{ border-bottom:0; }
+  .deflist .k{ font-family:var(--f-mono); font-size:clamp(12.5px,1.3vw,17px); font-weight:500; }
+  .deflist .k.blue{ color:var(--link); } .deflist .k.red{ color:var(--active); } .deflist .k.purple{ color:var(--visited); } .deflist .k.ink{ color:var(--ink); }
+  .deflist .v{ font-size:clamp(13px,1.4vw,18px); line-height:1.4; color:var(--ink); }
+
+  /* ---------- device frames ---------- */
+  .devices{ display:flex; align-items:flex-end; justify-content:center; gap:clamp(16px,3.4vw,52px); flex-wrap:wrap; margin-top:clamp(12px,2vw,24px); }
+  .device{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .device .frame{ border:2.5px solid var(--ink); background:var(--card); box-shadow:5px 6px 0 rgba(0,0,0,.14); position:relative; padding:8px; }
+  @media (prefers-color-scheme: dark){ .device .frame{ box-shadow:5px 6px 0 rgba(0,0,0,.5); } }
+  .device .screen{ background:#fff; border:1px solid var(--line); border-radius:3px; height:100%; display:flex; flex-direction:column; gap:5px; padding:9px; overflow:hidden; }
+  .device .screen .h{ height:9px; border-radius:2px; background:#1B10E6; } .device .screen .h.sm{ width:60%; }
+  .device .screen .l{ height:6px; border-radius:2px; background:#d6d6e2; }
+  .device.phone .frame{ width:104px; height:186px; border-radius:18px; }
+  .device.tablet .frame{ width:168px; height:206px; border-radius:14px; }
+  .device.desktop .frame{ width:300px; height:186px; border-radius:12px; }
+  .device.desktop .frame::after{ content:""; position:absolute; left:50%; bottom:-16px; transform:translateX(-50%); width:70px; height:14px;
+    background:var(--card); border:2.5px solid var(--ink); border-top:none; border-radius:0 0 6px 6px; }
+  .device .cap{ font-family:var(--f-mono); font-size:clamp(11px,1.1vw,13.5px); color:var(--ink); text-align:center; }
+  .device .cap b{ display:block; color:var(--link); }
+  .device .cap .rng{ color:var(--muted); font-size:.85em; }
+  .device.desktop{ margin-bottom:16px; }
+  .device .cols{ display:flex; gap:5px; height:100%; } .device .cols .col{ flex:1; background:#eef; border-radius:2px; }
+
+  /* ---------- three-up cards ---------- */
+  .semgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2vw,26px); margin-top:clamp(14px,2vw,26px); }
+  .semgrid.two{ grid-template-columns:1fr 1fr; }
+  @media (max-width:860px){ .semgrid,.semgrid.two{ grid-template-columns:1fr; } }
+  .semcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(16px,2vw,26px); background:var(--card); display:flex; flex-direction:column; gap:10px; }
+  .semcard .tg{ font-family:var(--f-mono); font-size:clamp(14px,1.6vw,20px); color:var(--link); font-weight:500; }
+  .semcard .tg .by{ color:var(--muted); font-size:.72em; }
+  .semcard p{ margin:0; font-size:clamp(13px,1.35vw,17px); line-height:1.45; color:var(--ink); }
+  .semcard .kbd{ margin-top:auto; font-family:var(--f-mono); font-size:clamp(11.5px,1.1vw,14px); color:var(--muted); }
+  .semcard .kbd kbd{ border:1.2px solid var(--line); border-radius:4px; padding:1px 6px; color:var(--ink); }
+  .semcard ul{ margin:0; padding-left:1.15em; display:grid; gap:6px; font-size:clamp(12.5px,1.3vw,16px); line-height:1.4; color:var(--ink); }
+  .semcard li::marker{ color:var(--visited); }
+
+  /* ---------- recap chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,13px); margin-top:clamp(16px,2.2vw,28px); max-width:84ch; }
+  .chip{ font-family:var(--f-mono); font-size:clamp(13px,1.3vw,18px); padding:clamp(7px,.9vw,12px) clamp(11px,1.3vw,18px);
+    border:1.5px solid var(--ink); border-radius:999px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .closing .next{ margin-top:clamp(18px,2.4vw,32px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- practice ---------- */
+  .hw ul{ margin:clamp(14px,2vw,24px) 0 0; padding-left:1.25em; display:grid; gap:clamp(9px,1.3vw,14px);
+    font-size:clamp(14.5px,1.55vw,21px); line-height:1.4; max-width:66ch; }
+  .hw ul b{ color:var(--visited); }
+
+  /* ---------- footer / controls ---------- */
+  .footer{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:9px 16px; background:var(--chrome);
+    border-top:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; } .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{ font-family:var(--f-mono); font-size:14px; line-height:1; width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink); border:1.4px solid var(--ink); border-radius:6px; }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40; font-family:var(--f-mono); font-size:11.5px;
+    color:var(--muted); background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px; box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px);
+    padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px;
+    min-height:110px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; } .progress .bar{ transition:none; }
+  }
+  @media (max-width:560px){ .chrome .brand{ display:none; } .footer .sect{ display:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Week 4 slideshow">
+
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-04</b>/responsive-web-design</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="responsive-web-design" data-section="cover">
+      <p class="doctype rise">@media <b>(min-width: any-screen)</b> { /* it just works */ }</p>
+      <h1 class="titlelink rise">Responsive<br>Web Design<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>04</b></span>
+        <span>CalArts <b>· Spring ’23</b></span>
+      </div>
+    </section>
+
+    <!-- 2 · WHY RESPONSIVE -->
+    <section class="slide" data-slug="why-responsive" data-section="why responsive">
+      <p class="eyebrow rise">&lt;!-- <span class="num">01</span> / <span class="tag">why responsive design?</span> --&gt;</p>
+      <h2 class="rise">One site. Every screen.</h2>
+      <p class="lead rise">People visit your page on phones, tablets, laptops, and giant monitors. A layout that fills a laptop will <em class="hl2">overflow a phone</em>.</p>
+      <p class="lead muted rise"><em class="hl">Responsive design</em> is the practice of building one page that adapts its layout to whatever screen it lands on.</p>
+    </section>
+
+    <!-- 3 · MEDIA QUERIES -->
+    <section class="slide" data-slug="media-queries" data-section="media queries">
+      <p class="eyebrow rise">&lt;!-- <span class="num">02</span> / <span class="tag">the main tool: media queries</span> --&gt;</p>
+      <h2 class="rise">Different styles at different sizes.</h2>
+      <p class="lead rise">A <em class="hl">media query</em> is a block of CSS that only applies when the screen meets a condition — like "the viewport is 600px wide or less."</p>
+      <p class="lead muted rise">You write your default styles once, then add media queries to adjust them as the screen gets smaller or larger.</p>
+    </section>
+
+    <!-- 4 · MEDIA QUERY ANATOMY -->
+    <section class="slide" data-slug="media-query-anatomy" data-section="anatomy">
+      <p class="eyebrow rise">&lt;!-- <span class="num">03</span> / <span class="tag">anatomy of a media query</span> --&gt;</p>
+      <h2 class="rise">Reading the syntax.</h2>
+      <div class="codepair rise">
+        <div class="rsdiagram">
+<div><span class="kw">@media</span> <span class="sel">screen</span> <span class="pun">and</span> <span class="pun">(</span><span class="prop">max-width</span><span class="pun">:</span> <span class="val">600px</span><span class="pun">)</span> <span class="pun">{</span></div>
+<div>&nbsp;&nbsp;<span class="sel">body</span> <span class="pun">{</span> <span class="prop">font-size</span><span class="pun">:</span> <span class="val">14px</span><span class="pun">;</span> <span class="pun">}</span></div>
+<div><span class="pun">}</span></div>
+        </div>
+        <div class="deflist">
+          <div class="d"><span class="k red">@media</span><span class="v">the keyword that begins a media query.</span></div>
+          <div class="d"><span class="k blue">screen</span><span class="v">the media type — almost always <code class="ic">screen</code> (vs <code class="ic">print</code>).</span></div>
+          <div class="d"><span class="k purple">(max-width: 600px)</span><span class="v">the condition — apply this <b>when the viewport is ≤ 600px</b>. That width is a <b>breakpoint</b>.</span></div>
+          <div class="d"><span class="k ink">{ … }</span><span class="v">the styles to use when the condition is true.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · EXAMPLE -->
+    <section class="slide" data-slug="media-query-example" data-section="an example">
+      <p class="eyebrow rise">&lt;!-- <span class="num">04</span> / <span class="tag">a full example</span> --&gt;</p>
+      <h2 class="rise">Smaller screen, smaller text.</h2>
+      <div class="codepair rise">
+        <div class="snippet">
+          <div class="bar"><span class="fdot" style="background:var(--active)"></span> style.css</div>
+<pre><span class="cm">/* default styles */</span>
+<span class="sel">body</span> { <span class="prop">font-size</span>: <span class="val">16px</span>; }
+
+<span class="cm">/* when the screen is ≤ 600px */</span>
+<span class="kw">@media</span> <span class="sel">only screen</span> <span class="pun">and</span> (<span class="prop">max-width</span>: <span class="val">600px</span>) {
+  <span class="sel">body</span> { <span class="prop">font-size</span>: <span class="val">14px</span>; }
+}</pre>
+        </div>
+        <div class="devices" style="margin-top:0">
+          <div class="device phone">
+            <div class="frame"><div class="screen"><div style="font-size:14px;font-family:var(--f-display);font-weight:600;color:#111">Hello World!</div><div class="l" style="width:90%"></div><div class="l" style="width:70%"></div></div></div>
+            <div class="cap"><b>≤ 600px</b> 14px</div>
+          </div>
+          <div class="device desktop">
+            <div class="frame"><div class="screen"><div style="font-size:16px;font-family:var(--f-display);font-weight:600;color:#111">Hello World!</div><div class="l" style="width:80%"></div><div class="l" style="width:55%"></div></div></div>
+            <div class="cap"><b>&gt; 600px</b> 16px</div>
+          </div>
+        </div>
+      </div>
+      <p class="caption rise">Above the breakpoint, the default <code class="ic">16px</code> applies. At 600px or below, the media query takes over and shrinks the text to <code class="ic">14px</code>.</p>
+    </section>
+
+    <!-- 6 · BREAKPOINTS -->
+    <section class="slide" data-slug="breakpoints" data-section="breakpoints">
+      <p class="eyebrow rise">&lt;!-- <span class="num">05</span> / <span class="tag">common breakpoints</span> --&gt;</p>
+      <h2 class="rise" style="text-align:center">Three sizes to design for.</h2>
+      <div class="devices rise">
+        <div class="device phone">
+          <div class="frame"><div class="screen"><div class="h sm"></div><div class="l"></div><div class="l" style="width:80%"></div><div class="l" style="width:90%"></div></div></div>
+          <div class="cap"><b>📱 Smartphone</b><span class="rng">max-width: 767px</span></div>
+        </div>
+        <div class="device tablet">
+          <div class="frame"><div class="screen"><div class="h"></div><div class="cols" style="margin-top:2px"><div class="col"></div><div class="col"></div></div></div></div>
+          <div class="cap"><b>📋 Tablet</b><span class="rng">768px – 1023px</span></div>
+        </div>
+        <div class="device desktop">
+          <div class="frame"><div class="screen"><div class="h" style="width:45%"></div><div class="cols" style="margin-top:2px"><div class="col"></div><div class="col"></div><div class="col"></div></div></div></div>
+          <div class="cap"><b>🖥 Desktop</b><span class="rng">min-width: 1024px</span></div>
+        </div>
+      </div>
+      <p class="talk rise"><b>// note</b> — these are common starting points, not hard rules. Set breakpoints where <i>your</i> layout starts to break.</p>
+    </section>
+
+    <!-- 7 · TESTING OVERVIEW -->
+    <section class="slide" data-slug="testing-on-mobile" data-section="testing on mobile">
+      <p class="eyebrow rise">&lt;!-- <span class="num">06</span> / <span class="tag">how do we test it?</span> --&gt;</p>
+      <h2 class="rise">Three ways to preview mobile.</h2>
+      <div class="semgrid rise">
+        <div class="semcard">
+          <span class="tg">Chrome DevTools</span>
+          <p>Built into Chrome. Emulate dozens of devices and screen sizes right on your computer.</p>
+          <div class="kbd">free · cross-platform</div>
+        </div>
+        <div class="semcard">
+          <span class="tg">Xcode Simulator</span>
+          <p>Apple's virtual iPhone &amp; iPad. Preview your site in the Simulator's built-in Safari.</p>
+          <div class="kbd">macOS only</div>
+        </div>
+        <div class="semcard">
+          <span class="tg">Safari</span>
+          <p>The default browser on iOS &amp; macOS, with developer tools for debugging on real iOS devices.</p>
+          <div class="kbd">real-device debugging</div>
+        </div>
+      </div>
+      <p class="talk rise"><b>// golden rule</b> — simulators are great, but nothing beats testing on a real phone.</p>
+    </section>
+
+    <!-- 8 · CHROME DEVTOOLS -->
+    <section class="slide" data-slug="chrome-devtools" data-section="chrome devtools">
+      <p class="eyebrow rise">&lt;!-- <span class="num">07</span> / <span class="tag">Chrome DevTools</span> --&gt;</p>
+      <h2 class="rise">Your everyday testing tool.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard">
+          <span class="tg">Open it</span>
+          <ul>
+            <li>Right-click the page → <b>Inspect</b>, or press <b>F12</b>.</li>
+            <li>Toggle the device toolbar: <b>Cmd/Ctrl + Shift + M</b>.</li>
+            <li>Pick a device and see your layout emulated instantly.</li>
+          </ul>
+          <div class="kbd"><kbd>⌘⇧M</kbd> device toolbar</div>
+        </div>
+        <div class="semcard">
+          <span class="tg">The panels</span>
+          <ul>
+            <li><b>Elements</b> — inspect &amp; live-edit HTML and CSS.</li>
+            <li><b>Console</b> — debug JavaScript.</li>
+            <li><b>Audits / Lighthouse</b> — find performance issues (big images, bloated CSS).</li>
+          </ul>
+        </div>
+      </div>
+      <p class="caption rise">Emulating devices and screen sizes is the single most useful feature for getting responsive layouts right.</p>
+    </section>
+
+    <!-- 9 · XCODE SIMULATOR -->
+    <section class="slide" data-slug="xcode-simulator" data-section="xcode simulator">
+      <p class="eyebrow rise">&lt;!-- <span class="num">08</span> / <span class="tag">Xcode &amp; the iOS Simulator</span> --&gt;</p>
+      <h2 class="rise">Virtual iPhones &amp; iPads.</h2>
+      <div class="codepair rise">
+        <div>
+          <p class="lead" style="margin-top:0">Xcode is Apple's development environment for macOS. It includes the <em class="hl">iOS Simulator</em> — virtual iPhone and iPad devices you can test on without owning them all.</p>
+          <p class="caption">Install Xcode → open it → <b>Open Developer Tool ▸ Simulator</b>. Choose a device and iOS version, then browse your site in the Simulator's built-in <b>Safari</b>.</p>
+        </div>
+        <div class="semcard">
+          <span class="tg">Good to know</span>
+          <ul>
+            <li>Great for checking layout across many iOS sizes.</li>
+            <li>It's a virtual environment — some features (geolocation, device APIs) may not work.</li>
+            <li>Not a substitute for a real device.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · REAL DEVICES -->
+    <section class="slide" data-slug="real-devices" data-section="real devices">
+      <p class="eyebrow rise">&lt;!-- <span class="num">09</span> / <span class="tag">best practices for mobile testing</span> --&gt;</p>
+      <h2 class="rise">Then test on the real thing.</h2>
+      <p class="lead rise">Emulators and simulators get you 90% of the way. But screen sizes, resolutions, touch, and performance all behave a little differently on <em class="hl2">actual hardware</em>.</p>
+      <div class="hw rise">
+        <ul>
+          <li>Test on a <b>variety of devices</b>, not just one.</li>
+          <li>Use <b>real devices</b> whenever you can.</li>
+          <li>Cover different <b>screen sizes and resolutions</b>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 11 · CSS FRAMEWORKS -->
+    <section class="slide" data-slug="css-frameworks" data-section="css frameworks">
+      <p class="eyebrow rise">&lt;!-- <span class="num">10</span> / <span class="tag">CSS frameworks</span> --&gt;</p>
+      <h2 class="rise">A head start on styling.</h2>
+      <p class="lead rise">A <em class="hl">CSS framework</em> is a pre-built library of styles and components — grids, buttons, forms, navigation — that make it faster to build <em class="hl2">responsive, consistent</em> pages.</p>
+      <p class="lead muted rise">Instead of styling everything from scratch, you drop in ready-made, tested pieces and customize them.</p>
+    </section>
+
+    <!-- 12 · BOOTSTRAP & MATERIAL -->
+    <section class="slide" data-slug="bootstrap-material" data-section="bootstrap · material">
+      <p class="eyebrow rise">&lt;!-- <span class="num">11</span> / <span class="tag">two popular frameworks</span> --&gt;</p>
+      <h2 class="rise">Bootstrap &amp; Material.</h2>
+      <div class="semgrid two rise">
+        <div class="semcard">
+          <span class="tg">Bootstrap <span class="by">· by Twitter</span></span>
+          <ul>
+            <li>Responsive, <b>mobile-first</b> framework.</li>
+            <li>A flexible <b>grid system</b> for layouts.</li>
+            <li>Ready-made components: forms, buttons, modals, navbars.</li>
+            <li>Free &amp; open-source.</li>
+          </ul>
+        </div>
+        <div class="semcard">
+          <span class="tg">Material-UI <span class="by">· by Google</span></span>
+          <ul>
+            <li>Implements Google's <b>Material Design</b> language.</li>
+            <li>Consistent look &amp; feel across platforms.</li>
+            <li>Works with React, Angular, Vue.</li>
+            <li>Free &amp; open-source.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="talk rise"><b>// both</b> give you a polished, consistent starting point — then you customize to make it yours.</p>
+    </section>
+
+    <!-- 13 · RECAP -->
+    <section class="slide" data-slug="recap" data-section="recap">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">what we learned today</span> --&gt;</p>
+      <h2 class="rise">Your responsive toolkit.</h2>
+      <div class="chips rise">
+        <span class="chip b">responsive design</span>
+        <span class="chip b">@media queries</span>
+        <span class="chip p">max-width / min-width</span>
+        <span class="chip">breakpoints</span>
+        <span class="chip">📱 phone</span>
+        <span class="chip">📋 tablet</span>
+        <span class="chip">🖥 desktop</span>
+        <span class="chip b">Chrome DevTools</span>
+        <span class="chip">Xcode Simulator</span>
+        <span class="chip">Safari debugging</span>
+        <span class="chip p">Bootstrap</span>
+        <span class="chip p">Material-UI</span>
+      </div>
+      <p class="talk rise"><b>// the big idea</b> — build once, adapt everywhere. Set breakpoints where your layout breaks, and always test on real screens.</p>
+    </section>
+
+    <!-- 14 · PRACTICE / CLOSING -->
+    <section class="slide closing" data-slug="try-it" data-section="wrap-up">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">this week — make it responsive</span> --&gt;</p>
+      <h2 class="rise">Make your site adapt.</h2>
+      <div class="hw rise">
+        <ul>
+          <li>Add a <b>media query</b> to your project — shrink text or stack columns on small screens.</li>
+          <li>Open <b>Chrome DevTools</b> (<code class="ic">⌘⇧M</code>) and preview it across devices.</li>
+          <li>Fix anything that <b>overflows or breaks</b> on phone width.</li>
+          <li>Curious? Explore a <b>CSS framework</b> like Bootstrap.</li>
+        </ul>
+      </div>
+      <p class="next rise">&lt;/week-04&gt; · &nbsp;keep testing on real screens.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">14</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, i = 0;
+  var bar=document.getElementById('bar'), cur=document.getElementById('cur'), totalEl=document.getElementById('total');
+  var sectName=document.getElementById('sectName'), urlEl=document.getElementById('url');
+  var hint=document.getElementById('hint'), overview=document.getElementById('overview'), ovgrid=document.getElementById('ovgrid');
+  totalEl.textContent = total;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+
+  function render(){
+    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+    var s=slides[i];
+    cur.textContent=pad(i+1);
+    bar.style.width=((i+1)/total*100)+'%';
+    sectName.textContent=s.getAttribute('data-section')||'';
+    urlEl.innerHTML='localhost:1989/<b>week-04</b>/'+(s.getAttribute('data-slug')||'');
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+    Array.prototype.forEach.call(ovgrid.children, function(c,idx){ c.classList.toggle('current', idx===i); });
+  }
+  function go(n){ var nx=Math.max(0,Math.min(total-1,n)); if(nx===i) return; i=nx; render(); }
+  function nextSlide(){ go(i+1); } function prevSlide(){ go(i-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(overview.classList.contains('open')){ if(k==='Escape'||k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); } return; }
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){ nextSlide(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){ prevSlide(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); e.preventDefault(); }
+    else if(k==='End'){ go(total-1); e.preventDefault(); }
+    else if(k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); }
+    else if(k==='f'||k==='F'){ toggleFullscreen(); e.preventDefault(); }
+    else if(k>='1'&&k<='9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(e.target.closest('a, button')) return;
+    var x=e.clientX/window.innerWidth;
+    if(x>0.35) nextSlide(); else prevSlide();
+  });
+
+  var tx=0,ty=0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?nextSlide():prevSlide(); }
+  }, {passive:true});
+
+  var fsBtn=document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el=document.documentElement;
+    if(!fsElement()){
+      var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+      if(req){ var r=req.call(el); if(r&&r.catch) r.catch(function(){}); }
+    } else {
+      var exit=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;
+      if(exit){ var e2=exit.call(document); if(e2&&e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on=!!fsElement();
+    if(fsBtn){ fsBtn.textContent=on?'⤢':'⛶'; fsBtn.title=on?'Exit fullscreen (F)':'Fullscreen (F)'; }
+  }
+  if(fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  slides.forEach(function(s,idx){
+    var b=document.createElement('button');
+    b.className='ovcard';
+    var title=(s.querySelector('h1, h2')||{}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML='<span class="oi">'+pad(idx+1)+' · '+(s.getAttribute('data-section')||'')+'</span>'+
+                '<span class="ot">'+title.replace(/\s+/g,' ').trim()+'</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  setTimeout(function(){ hint.style.opacity='0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity='1'; clearTimeout(hint._t);
+    hint._t=setTimeout(function(){ hint.style.opacity='0'; }, 2600);
+  });
+
+  var start=parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i=start-1;
+  render();
+})();
+</script>
+</body>
+</html>

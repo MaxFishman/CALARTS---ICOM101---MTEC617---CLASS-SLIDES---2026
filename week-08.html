@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 08 · APIs &amp; Frameworks — ICOM101 / MTEC617</title>
+<meta name="description" content="Week 8 slideshow for Intro to Web Development (ICOM101 / MTEC617), CalArts — APIs & Frameworks." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 08 · APIs & FRAMEWORKS
+     Same identity as Weeks 01–07. Signatures: an API request/
+     response flow diagram, and a framework lineup with language
+     badges (JS/TS · Python · Ruby).
+     ============================================================ */
+
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  /* ---------- deck frame ---------- */
+  .deck{ position:fixed; inset:clamp(10px,2.4vw,30px); background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); display:flex; flex-direction:column; overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; } .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{ position:absolute; inset:0; padding:clamp(22px,3.8vw,60px); display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s; overflow:auto; }
+  .slide.active{ opacity:1; visibility:visible; transform:none; transition:opacity .55s var(--ease), transform .55s var(--ease); z-index:2; }
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; } .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; } .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; } .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,15px); color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(12px,1.7vw,22px); }
+  .eyebrow .num2{ color:var(--active); } .eyebrow .tag{ color:var(--link); }
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(28px,4.6vw,58px); }
+  .lead{ font-size:clamp(16px,1.75vw,23px); line-height:1.45; max-width:58ch; color:var(--ink); margin:clamp(12px,1.8vw,24px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+  code.ic{ font-family:var(--f-mono); font-size:.9em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  .talk{ margin-top:clamp(14px,2vw,26px); border-left:3px solid var(--visited); padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12px,1.05vw,14.5px); color:var(--muted); line-height:1.7; max-width:74ch; }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98; font-size:clamp(42px,8.4vw,120px);
+    color:var(--link); text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px); text-underline-offset:clamp(6px,1.2vw,16px); }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- two-column ---------- */
+  .cols2{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.4vw,34px); margin-top:clamp(14px,2vw,26px); align-items:start; }
+  @media (max-width:880px){ .cols2{ grid-template-columns:1fr; } }
+  .caption{ font-family:var(--f-mono); font-size:clamp(12px,1.1vw,14.5px); color:var(--muted); margin-top:12px; line-height:1.55; max-width:62ch; }
+  .caption b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- request / response flow ---------- */
+  .flow{ display:flex; align-items:stretch; justify-content:center; gap:clamp(6px,1vw,14px); flex-wrap:wrap; margin-top:clamp(16px,2.4vw,30px); }
+  .flow .node{ flex:1 1 160px; max-width:230px; border:1.5px solid var(--ink); border-radius:10px; background:var(--card); padding:clamp(13px,1.7vw,22px);
+    display:flex; flex-direction:column; gap:6px; box-shadow:4px 5px 0 rgba(0,0,0,.1); text-align:center; }
+  .flow .node.api{ border-color:var(--link); box-shadow:4px 5px 0 var(--link); }
+  .flow .node .em{ font-size:clamp(22px,2.6vw,34px); } .flow .node .t{ font-family:var(--f-display); font-weight:600; font-size:clamp(15px,1.6vw,20px); color:var(--link); }
+  .flow .node .s{ font-family:var(--f-mono); font-size:clamp(11px,1.1vw,13.5px); color:var(--muted); line-height:1.45; }
+  .flow .arr{ display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--active); font-family:var(--f-mono); font-size:clamp(11px,1.1vw,13px); gap:2px; }
+  .flow .arr .big{ font-size:clamp(18px,2vw,26px); line-height:1; }
+  @media (max-width:880px){ .flow{ flex-direction:column; align-items:stretch; } .flow .node{ max-width:none; } .flow .arr .big{ transform:rotate(90deg); } }
+
+  /* ---------- three/four cards ---------- */
+  .semgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2vw,24px); margin-top:clamp(14px,2vw,26px); }
+  .semgrid.four{ grid-template-columns:repeat(2,1fr); } .semgrid.two{ grid-template-columns:1fr 1fr; }
+  @media (max-width:860px){ .semgrid,.semgrid.two,.semgrid.four{ grid-template-columns:1fr; } }
+  .semcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(16px,2vw,26px); background:var(--card); display:flex; flex-direction:column; gap:9px; }
+  .semcard .no{ font-family:var(--f-mono); font-weight:700; font-size:clamp(18px,2.4vw,30px); color:var(--active); line-height:1; }
+  .semcard .tg{ font-family:var(--f-display); font-weight:600; font-size:clamp(16px,1.8vw,23px); color:var(--link); }
+  .semcard .tg .em{ margin-right:6px; }
+  .semcard p{ margin:0; font-size:clamp(12.5px,1.3vw,16.5px); line-height:1.45; color:var(--muted); }
+  .semcard .eg{ margin-top:auto; font-family:var(--f-mono); font-size:clamp(11px,1.05vw,13.5px); color:var(--visited); }
+  .semcard .eg b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- framework lineup ---------- */
+  .fwgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:clamp(12px,1.6vw,20px); margin-top:clamp(14px,2vw,26px); }
+  .fwcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(14px,1.8vw,22px); background:var(--card); display:flex; flex-direction:column; gap:8px;
+    box-shadow:4px 5px 0 rgba(0,0,0,.1); }
+  .fwcard .top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .fwcard .name{ font-family:var(--f-display); font-weight:600; font-size:clamp(16px,1.8vw,22px); color:var(--ink); }
+  .fwcard .lang{ font-family:var(--f-mono); font-size:clamp(10.5px,1vw,12.5px); padding:2px 9px; border-radius:999px; border:1.3px solid; white-space:nowrap; }
+  .fwcard .lang.js{ color:var(--link); border-color:var(--link); }
+  .fwcard .lang.py{ color:var(--visited); border-color:var(--visited); }
+  .fwcard .lang.rb{ color:var(--active); border-color:var(--active); }
+  .fwcard .type{ font-family:var(--f-mono); font-size:clamp(10.5px,1vw,12.5px); color:var(--muted); }
+  .fwcard p{ margin:0; font-size:clamp(12px,1.25vw,15.5px); line-height:1.4; color:var(--ink); }
+
+  /* ---------- language map ---------- */
+  .deflist{ display:grid; gap:clamp(10px,1.4vw,16px); }
+  .deflist .d{ display:grid; grid-template-columns:minmax(150px,auto) 1fr; gap:clamp(12px,1.6vw,22px); align-items:baseline;
+    border-bottom:1.3px dashed var(--line); padding-bottom:clamp(9px,1.3vw,14px); }
+  .deflist .d:last-child{ border-bottom:0; }
+  .deflist .k{ font-family:var(--f-mono); font-size:clamp(12.5px,1.3vw,17px); font-weight:500; color:var(--link); }
+  .deflist .v{ font-size:clamp(13px,1.4vw,18px); line-height:1.4; color:var(--ink); }
+  .deflist .v b{ color:var(--visited); }
+
+  /* ---------- recap chips ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,13px); margin-top:clamp(16px,2.2vw,28px); max-width:88ch; }
+  .chip{ font-family:var(--f-mono); font-size:clamp(13px,1.3vw,18px); padding:clamp(7px,.9vw,12px) clamp(11px,1.3vw,18px);
+    border:1.5px solid var(--ink); border-radius:999px; background:var(--card); color:var(--ink); box-shadow:3px 3px 0 var(--ink); }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+  .closing .next{ margin-top:clamp(18px,2.4vw,32px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- practice ---------- */
+  .hw ul{ margin:clamp(14px,2vw,24px) 0 0; padding-left:1.25em; display:grid; gap:clamp(9px,1.3vw,14px);
+    font-size:clamp(14.5px,1.55vw,21px); line-height:1.4; max-width:68ch; }
+  .hw ul b{ color:var(--visited); }
+  .hw ul code{ font-family:var(--f-mono); font-size:.82em; color:var(--link); background:color-mix(in srgb, var(--link) 12%, transparent); padding:1px 6px; border-radius:5px; }
+
+  /* ---------- footer / controls ---------- */
+  .footer{ flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:9px 16px; background:var(--chrome);
+    border-top:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; } .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{ font-family:var(--f-mono); font-size:14px; line-height:1; width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink); border:1.4px solid var(--ink); border-radius:6px; }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40; font-family:var(--f-mono); font-size:11.5px;
+    color:var(--muted); background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px; box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px);
+    padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px;
+    min-height:110px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; } .progress .bar{ transition:none; }
+  }
+  @media (max-width:560px){ .chrome .brand{ display:none; } .footer .sect{ display:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Week 8 slideshow">
+
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-08</b>/apis-and-frameworks</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="apis-and-frameworks" data-section="cover">
+      <p class="doctype rise">GET <b>/data</b> → <span style="color:var(--muted)">apps talking to apps, standing on giants' shoulders</span></p>
+      <h1 class="titlelink rise">APIs &amp;<br>Frameworks<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>08</b></span>
+        <span>CalArts <b>· Spring ’23</b></span>
+      </div>
+    </section>
+
+    <!-- 2 · WHAT IS AN API -->
+    <section class="slide" data-slug="what-is-an-api" data-section="what is an API">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">01</span> / <span class="tag">what is an API?</span> --&gt;</p>
+      <h2 class="rise">How software talks to software.</h2>
+      <p class="lead rise">An <em class="hl">API</em> — Application Programming Interface — is a set of rules and tools that let two software applications <em class="hl2">communicate</em>.</p>
+      <p class="lead muted rise">It's the interface between programs: one app can share data and functionality with another, without either knowing how the other is built inside.</p>
+    </section>
+
+    <!-- 3 · HOW APIS WORK -->
+    <section class="slide" data-slug="how-apis-work" data-section="how it works">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">02</span> / <span class="tag">request &amp; response</span> --&gt;</p>
+      <h2 class="rise" style="text-align:center">Ask, and receive.</h2>
+      <div class="flow rise">
+        <div class="node"><span class="em">🧑‍💻</span><span class="t">Your app</span><span class="s">needs a map on the page.</span></div>
+        <div class="arr"><span>request →</span><span class="big">→</span></div>
+        <div class="node api"><span class="em">🔌</span><span class="t">The API</span><span class="s">the agreed-upon doorway.</span></div>
+        <div class="arr"><span>← response</span><span class="big">→</span></div>
+        <div class="node"><span class="em">🗺️</span><span class="t">The service</span><span class="s">Google Maps sends map data back.</span></div>
+      </div>
+      <p class="caption rise" style="text-align:center;margin-left:auto;margin-right:auto">Your app sends a <b>request</b> through the API; the service sends a <b>response</b> back. You use the result without ever seeing the other system's code.</p>
+    </section>
+
+    <!-- 4 · TYPES OF APIS -->
+    <section class="slide" data-slug="types-of-apis" data-section="three types">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">03</span> / <span class="tag">three primary types</span> --&gt;</p>
+      <h2 class="rise">Not all APIs are the same.</h2>
+      <div class="semgrid rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">🌐</span>Web APIs</span>
+          <p>Let different <b>web applications</b> talk over the internet.</p>
+          <span class="eg">e.g. <b>Google Maps API</b></span>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🖥️</span>Operating System</span>
+          <p>Give programs access to <b>OS functions</b> — files, network, hardware.</p>
+          <span class="eg">e.g. <b>file system access</b></span>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">📚</span>Library-Based</span>
+          <p>Expose the functions &amp; resources of a specific <b>software library</b>.</p>
+          <span class="eg">e.g. <b>a charting library</b></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · BENEFITS -->
+    <section class="slide" data-slug="why-apis-matter" data-section="benefits">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">04</span> / <span class="tag">why APIs matter</span> --&gt;</p>
+      <h2 class="rise">Build more, faster.</h2>
+      <div class="semgrid four rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">♻️</span>Reuse code</span>
+          <p>Plug in functionality that already exists instead of building it from scratch — saving time and effort.</p>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🧩</span>Combine powers</span>
+          <p>Integrate several APIs into one program to make more advanced applications.</p>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">🤝</span>Collaborate &amp; innovate</span>
+          <p>Mixing services creates products that wouldn't have been possible alone.</p>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">✨</span>Better experience</span>
+          <p>Users reach information &amp; features from other apps without leaving yours.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · EXAMPLES -->
+    <section class="slide" data-slug="apis-in-the-wild" data-section="in the wild">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">05</span> / <span class="tag">APIs you've already used</span> --&gt;</p>
+      <h2 class="rise">You use these every day.</h2>
+      <div class="cols2 rise">
+        <div class="semcard">
+          <span class="tg"><span class="em">🗺️</span>Maps in an app</span>
+          <p>A website drops in the <b>Google Maps API</b> to show an interactive map — no need to build mapping from scratch.</p>
+        </div>
+        <div class="semcard">
+          <span class="tg"><span class="em">💳</span>Pay without leaving</span>
+          <p>A social platform uses a <b>payment API</b> so you can buy something right inside the app.</p>
+        </div>
+      </div>
+      <p class="talk rise"><b>// look around</b> — logins with Google, weather widgets, embedded videos, "share to…" buttons — all APIs.</p>
+    </section>
+
+    <!-- 7 · WHAT IS A FRAMEWORK -->
+    <section class="slide" data-slug="what-is-a-framework" data-section="frameworks">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">06</span> / <span class="tag">frameworks</span> --&gt;</p>
+      <h2 class="rise">A foundation to build on.</h2>
+      <p class="lead rise">A <em class="hl">framework</em> is a set of pre-built software components that give you a <em class="hl2">foundation</em> for building web applications.</p>
+      <p class="lead muted rise">Instead of wiring up everything yourself, you start from proven structure — and build quickly and efficiently on top of it.</p>
+    </section>
+
+    <!-- 8 · THE LINEUP -->
+    <section class="slide" data-slug="framework-lineup" data-section="the lineup">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">07</span> / <span class="tag">five popular frameworks</span> --&gt;</p>
+      <h2 class="rise">The lineup.</h2>
+      <div class="fwgrid rise">
+        <div class="fwcard">
+          <div class="top"><span class="name">React</span><span class="lang js">JavaScript</span></div>
+          <span class="type">library · front-end</span>
+          <p>Reusable UI components; great for single-page apps (SPAs).</p>
+        </div>
+        <div class="fwcard">
+          <div class="top"><span class="name">Angular</span><span class="lang js">TypeScript</span></div>
+          <span class="type">framework · front-end</span>
+          <p>Large, complex front-ends. Built-in routing, forms, dependency injection.</p>
+        </div>
+        <div class="fwcard">
+          <div class="top"><span class="name">Django</span><span class="lang py">Python</span></div>
+          <span class="type">framework · back-end</span>
+          <p>"Batteries included" — auth, admin panel, and database handling built in.</p>
+        </div>
+        <div class="fwcard">
+          <div class="top"><span class="name">Flask</span><span class="lang py">Python</span></div>
+          <span class="type">micro-framework · back-end</span>
+          <p>Lightweight, few built-ins. Ideal for simple apps or small APIs.</p>
+        </div>
+        <div class="fwcard">
+          <div class="top"><span class="name">Ruby on Rails</span><span class="lang rb">Ruby</span></div>
+          <span class="type">framework · back-end</span>
+          <p>"Convention over configuration" — sensible defaults let you build fast.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · BY LANGUAGE -->
+    <section class="slide" data-slug="by-language" data-section="front vs back">
+      <p class="eyebrow rise">&lt;!-- <span class="num2">08</span> / <span class="tag">how they line up</span> --&gt;</p>
+      <h2 class="rise">Language &amp; job.</h2>
+      <div class="cols2 rise">
+        <div class="semcard">
+          <span class="tg">🎨 Front-end — what users see</span>
+          <div class="deflist" style="margin-top:6px">
+            <div class="d"><span class="k">React</span><span class="v"><b>JavaScript</b> · components &amp; SPAs</span></div>
+            <div class="d"><span class="k">Angular</span><span class="v"><b>TypeScript</b> · big front-end apps</span></div>
+          </div>
+        </div>
+        <div class="semcard">
+          <span class="tg">⚙️ Back-end — the server side</span>
+          <div class="deflist" style="margin-top:6px">
+            <div class="d"><span class="k">Django</span><span class="v"><b>Python</b> · full-featured</span></div>
+            <div class="d"><span class="k">Flask</span><span class="v"><b>Python</b> · minimal</span></div>
+            <div class="d"><span class="k">Rails</span><span class="v"><b>Ruby</b> · convention-driven</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="talk rise"><b>// no single "best"</b> — each framework has strengths &amp; trade-offs. Pick one that fits the project (and the language you know).</p>
+    </section>
+
+    <!-- 10 · RECAP -->
+    <section class="slide" data-slug="recap" data-section="recap">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">what we learned today</span> --&gt;</p>
+      <h2 class="rise">APIs &amp; frameworks.</h2>
+      <div class="chips rise">
+        <span class="chip b">API</span>
+        <span class="chip">request / response</span>
+        <span class="chip p">web APIs</span>
+        <span class="chip p">OS APIs</span>
+        <span class="chip p">library APIs</span>
+        <span class="chip">reuse code</span>
+        <span class="chip b">frameworks</span>
+        <span class="chip">React</span>
+        <span class="chip">Angular</span>
+        <span class="chip">Django</span>
+        <span class="chip">Flask</span>
+        <span class="chip">Ruby on Rails</span>
+      </div>
+      <p class="talk rise"><b>// the big idea</b> — APIs let your app borrow other apps' powers; frameworks give you a head start so you're not building from zero.</p>
+    </section>
+
+    <!-- 11 · PRACTICE -->
+    <section class="slide closing" data-slug="try-it" data-section="wrap-up">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">this week — plug something in</span> --&gt;</p>
+      <h2 class="rise">Connect to the wider web.</h2>
+      <div class="hw rise">
+        <ul>
+          <li>Find a <b>free public API</b> (weather, jokes, dog photos…) and read its docs.</li>
+          <li>Embed one API in your project — a <b>map</b>, a <b>video</b>, or a <b>font</b> service.</li>
+          <li>Skim a framework's homepage — <b>React</b> or <b>Django</b> — and note what it gives you for free.</li>
+          <li>Write two sentences: which framework fits a project you'd like to build, and why?</li>
+        </ul>
+      </div>
+      <p class="next rise">&lt;/week-08&gt; · &nbsp;stand on the shoulders of giants.</p>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">11</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, i = 0;
+  var bar=document.getElementById('bar'), cur=document.getElementById('cur'), totalEl=document.getElementById('total');
+  var sectName=document.getElementById('sectName'), urlEl=document.getElementById('url');
+  var hint=document.getElementById('hint'), overview=document.getElementById('overview'), ovgrid=document.getElementById('ovgrid');
+  totalEl.textContent = total;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+
+  function render(){
+    slides.forEach(function(s,idx){ s.classList.toggle('active', idx===i); });
+    var s=slides[i];
+    cur.textContent=pad(i+1);
+    bar.style.width=((i+1)/total*100)+'%';
+    sectName.textContent=s.getAttribute('data-section')||'';
+    urlEl.innerHTML='localhost:1989/<b>week-08</b>/'+(s.getAttribute('data-slug')||'');
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1));
+    Array.prototype.forEach.call(ovgrid.children, function(c,idx){ c.classList.toggle('current', idx===i); });
+  }
+  function go(n){ var nx=Math.max(0,Math.min(total-1,n)); if(nx===i) return; i=nx; render(); }
+  function nextSlide(){ go(i+1); } function prevSlide(){ go(i-1); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(overview.classList.contains('open')){ if(k==='Escape'||k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); } return; }
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){ nextSlide(); e.preventDefault(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){ prevSlide(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); e.preventDefault(); }
+    else if(k==='End'){ go(total-1); e.preventDefault(); }
+    else if(k==='o'||k==='O'){ toggleOverview(); e.preventDefault(); }
+    else if(k==='f'||k==='F'){ toggleFullscreen(); e.preventDefault(); }
+    else if(k>='1'&&k<='9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if(e.target.closest('a, button')) return;
+    var x=e.clientX/window.innerWidth;
+    if(x>0.35) nextSlide(); else prevSlide();
+  });
+
+  var tx=0,ty=0;
+  document.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?nextSlide():prevSlide(); }
+  }, {passive:true});
+
+  var fsBtn=document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el=document.documentElement;
+    if(!fsElement()){
+      var req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen||el.msRequestFullscreen;
+      if(req){ var r=req.call(el); if(r&&r.catch) r.catch(function(){}); }
+    } else {
+      var exit=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||document.msExitFullscreen;
+      if(exit){ var e2=exit.call(document); if(e2&&e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on=!!fsElement();
+    if(fsBtn){ fsBtn.textContent=on?'⤢':'⛶'; fsBtn.title=on?'Exit fullscreen (F)':'Fullscreen (F)'; }
+  }
+  if(fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  slides.forEach(function(s,idx){
+    var b=document.createElement('button');
+    b.className='ovcard';
+    var title=(s.querySelector('h1, h2')||{}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML='<span class="oi">'+pad(idx+1)+' · '+(s.getAttribute('data-section')||'')+'</span>'+
+                '<span class="ot">'+title.replace(/\s+/g,' ').trim()+'</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  setTimeout(function(){ hint.style.opacity='0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity='1'; clearTimeout(hint._t);
+    hint._t=setTimeout(function(){ hint.style.opacity='0'; }, 2600);
+  });
+
+  var start=parseInt((location.hash||'').replace('#',''),10);
+  if(start>=1 && start<=total) i=start-1;
+  render();
+})();
+</script>
+</body>
+</html>
