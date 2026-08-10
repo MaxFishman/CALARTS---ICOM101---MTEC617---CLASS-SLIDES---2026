@@ -2,7 +2,7 @@
   <img src="https://coursedog-images-public.s3.us-east-2.amazonaws.com/calarts/calarts-logo-blue.png" alt="California Institute of the Arts (CalArts) logo" width="360">
 </p>
 
-<h1 align="center">Intro to Web Development</h1>
+<h1 align="center">Media and Web Development</h1>
 <p align="center"><strong>ICOM&nbsp;101 &nbsp;·&nbsp; MTEC&nbsp;617</strong><br>California Institute of the Arts &nbsp;·&nbsp; Spring 2026</p>
 
 ---
