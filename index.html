@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Intro to Web Development — ICOM101 / MTEC617 · CalArts</title>
+<meta name="description" content="Course hub for Intro to Web Development (ICOM101 / MTEC617), CalArts Spring '23. A directory of weekly lecture slideshows." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     COURSE HUB — a directory of weeks.
+     Same identity as the decks: the unstyled-hyperlink palette,
+     the "view source" browser frame. The course IS a directory.
+     ============================================================ */
+  :root{
+    --paper:#E7E7E1; --card:#FBFBF8; --ink:#15151B; --muted:#6A6A73;
+    --line:#C9C9C1; --link:#1B10E6; --visited:#7A1FA2; --active:#EE382B; --chrome:#DEDED7;
+    --f-display:"Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body:"Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27; --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E; }
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ min-height:100%; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--f-body);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px; background-position:center; -webkit-font-smoothing:antialiased;
+    min-height:100vh; padding:clamp(12px,2.4vw,34px);
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+  a{ color:inherit; }
+
+  .deck{ max-width:1080px; margin:0 auto; background:var(--card); border:1.5px solid var(--ink);
+    border-radius:12px; box-shadow:10px 12px 0 rgba(0,0,0,.14); overflow:hidden; }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  .chrome{ display:flex; align-items:center; gap:14px; padding:11px 16px; background:var(--chrome);
+    border-bottom:1.5px solid var(--ink); font-family:var(--f-mono); font-size:12px; }
+  .dots{ display:flex; gap:7px; } .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); } .dot.y{ background:#F5B62B; } .dot.g{ background:#38B24A; }
+  .urlbar{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; background:var(--card); border:1.4px solid var(--ink);
+    border-radius:999px; padding:5px 14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .urlbar .lock{ color:var(--visited); } .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); } .chrome .brand b{ color:var(--ink); }
+
+  .body{ padding:clamp(24px,4.4vw,64px); }
+
+  .eyebrow{ font-family:var(--f-mono); font-size:clamp(12px,1.15vw,15px); color:var(--muted); margin:0 0 clamp(14px,2vw,22px); }
+  .eyebrow .tag{ color:var(--link); }
+  h1{ font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:1; margin:0;
+    font-size:clamp(34px,6vw,74px); }
+  .sub{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,19px); margin-top:clamp(16px,2.2vw,26px);
+    display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .sub b{ color:var(--ink); font-weight:500; }
+
+  .listlabel{ font-family:var(--f-mono); font-size:clamp(12px,1.15vw,15px); color:var(--muted); margin:clamp(30px,4.4vw,52px) 0 clamp(14px,1.8vw,20px); }
+  .listlabel .n{ color:var(--active); }
+
+  /* week directory — each row is a big hyperlink */
+  .weeks{ display:grid; gap:clamp(14px,1.8vw,20px); }
+  .week{ display:grid; grid-template-columns:auto 1fr auto; gap:clamp(16px,2.4vw,30px); align-items:center; text-decoration:none;
+    border:1.5px solid var(--ink); border-radius:11px; background:var(--card); padding:clamp(18px,2.4vw,28px);
+    box-shadow:5px 6px 0 rgba(0,0,0,.10); transition:transform .16s var(--ease), box-shadow .16s var(--ease); }
+  .week:hover{ transform:translate(-3px,-3px); box-shadow:8px 9px 0 var(--link); }
+  .week:focus-visible{ outline:2.5px solid var(--active); outline-offset:3px; }
+  .week .idx{ font-family:var(--f-mono); font-weight:700; font-size:clamp(22px,3.4vw,40px); color:var(--link); line-height:1; }
+  .week .mid{ min-width:0; }
+  .week .kicker{ font-family:var(--f-mono); font-size:clamp(11.5px,1.1vw,14px); color:var(--muted); margin:0 0 5px; }
+  .week h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; margin:0; line-height:1.06;
+    font-size:clamp(20px,2.8vw,34px); color:var(--link); text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
+  .week .tags{ margin:10px 0 0; display:flex; flex-wrap:wrap; gap:6px; }
+  .week .tags span{ font-family:var(--f-mono); font-size:clamp(10.5px,1vw,12.5px); color:var(--visited);
+    border:1.3px solid var(--line); border-radius:999px; padding:2px 9px; }
+  .week .go{ font-family:var(--f-mono); font-size:clamp(12px,1.3vw,16px); color:var(--muted); white-space:nowrap; }
+  .week .go .arrow{ color:var(--active); font-size:1.4em; }
+  @media (max-width:640px){
+    .week{ grid-template-columns:auto 1fr; }
+    .week .go{ grid-column:1/-1; text-align:right; }
+  }
+
+  /* upcoming — not yet linked */
+  .week.soon{ opacity:.62; box-shadow:none; border-style:dashed; cursor:default; }
+  .week.soon:hover{ transform:none; box-shadow:none; }
+  .week.soon .idx, .week.soon h2{ color:var(--muted); text-decoration:none; }
+  .week.soon .go .arrow{ color:var(--muted); }
+
+  .foot{ margin-top:clamp(30px,4.4vw,52px); padding-top:clamp(16px,2vw,22px); border-top:1.4px dashed var(--line);
+    font-family:var(--f-mono); font-size:clamp(11.5px,1.1vw,14px); color:var(--muted); line-height:1.7; }
+  .foot b{ color:var(--ink); font-weight:500; } .foot kbd{ border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  @media (prefers-reduced-motion: reduce){ .week{ transition:none; } }
+</style>
+</head>
+<body>
+
+<main class="deck">
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span>localhost:1989/<b>intro-to-web</b>/</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <div class="body">
+    <p class="eyebrow">&lt;!-- <span class="tag">course directory</span> · a hub that links to each week --&gt;</p>
+    <h1>Intro to Web<br>Development.</h1>
+    <div class="sub">
+      <span>ICOM101 <b>/ MTEC617</b></span>
+      <span>CalArts <b>· Spring ’23</b></span>
+      <span><b>Lecture slideshows</b></span>
+    </div>
+
+    <p class="listlabel">&lt;ul&gt; <span class="n">//</span> pick a week to present</p>
+
+    <div class="weeks">
+
+      <a class="week" href="week-01.html">
+        <div class="idx">01</div>
+        <div class="mid">
+          <p class="kicker">week 01 · 13 slides</p>
+          <h2>What is the Web?</h2>
+          <div class="tags">
+            <span>client / server</span><span>front &amp; back end</span><span>DNS</span><span>HTML &amp; CSS history</span><span>homework</span>
+          </div>
+        </div>
+        <div class="go">open <span class="arrow">→</span></div>
+      </a>
+
+      <a class="week" href="week-02.html">
+        <div class="idx">02</div>
+        <div class="mid">
+          <p class="kicker">week 02 · 18 slides</p>
+          <h2>Introduction to HTML</h2>
+          <div class="tags">
+            <span>elements</span><span>body &amp; hierarchy</span><span>headings</span><span>divs</span><span>attributes</span><span>lists</span><span>links &amp; images</span>
+          </div>
+        </div>
+        <div class="go">open <span class="arrow">→</span></div>
+      </a>
+
+      <div class="week soon" aria-disabled="true">
+        <div class="idx">03</div>
+        <div class="mid">
+          <p class="kicker">week 03 · coming soon</p>
+          <h2>Styling with CSS</h2>
+          <div class="tags">
+            <span>selectors</span><span>the box model</span><span>color &amp; type</span>
+          </div>
+        </div>
+        <div class="go"><span class="arrow">·</span></div>
+      </div>
+
+    </div>
+
+    <p class="foot">
+      <b>Presenting:</b> open a week, then press <kbd>F</kbd> (or the <b>⛶</b> button) for fullscreen. Navigate with <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> · <kbd>O</kbd> for the slide overview.<br>
+      &lt;/intro-to-web&gt; · built for the classroom.
+    </p>
+  </div>
+</main>
+
+</body>
+</html>

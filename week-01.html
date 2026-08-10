@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Week 01 · Intro to Web Development — ICOM101 / MTEC617</title>
+<meta name="description" content="Week 1 slideshow for Intro to Web Development (ICOM101 / MTEC617), CalArts." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============================================================
+     WEEK 01 · INTRO TO WEB DEVELOPMENT
+     Identity: the unstyled hyperlink. blue = link, purple =
+     visited, red = active — the web's own default palette.
+     Every slide is framed as a "view source" browser window.
+     ============================================================ */
+
+  :root{
+    --paper:   #E7E7E1;   /* cool projector-friendly paper      */
+    --card:    #FBFBF8;   /* slide surface                      */
+    --ink:     #15151B;   /* text                               */
+    --muted:   #6A6A73;   /* secondary text                     */
+    --line:    #C9C9C1;   /* hairlines                          */
+    --link:    #1B10E6;   /* hyperlink blue  (the thesis color) */
+    --visited: #7A1FA2;   /* visited purple                     */
+    --active:  #EE382B;   /* active red                         */
+    --chrome:  #DEDED7;   /* browser chrome bar                 */
+
+    --f-display: "Space Grotesk", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --f-body: "Inter", system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+
+    --ease: cubic-bezier(.22,.61,.36,1);
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#0E0E13; --card:#17171E; --ink:#F2F2EC; --muted:#9A9AA4;
+      --line:#2C2C36; --chrome:#1E1E27;
+      --link:#8AA0FF; --visited:#C79BF0; --active:#FF6A5E;
+    }
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--f-body);
+    /* faint engineering grid — "structure you build on" */
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:34px 34px;
+    background-position:center;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); }
+  }
+
+  a{ color:inherit; }
+
+  /* ---------- deck frame (the browser window) ---------- */
+  .deck{
+    position:fixed; inset:clamp(10px,2.4vw,30px);
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:12px;
+    box-shadow: 10px 12px 0 rgba(0,0,0,.14);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  @media (prefers-color-scheme: dark){ .deck{ box-shadow:10px 12px 0 rgba(0,0,0,.5); } }
+
+  /* chrome bar */
+  .chrome{
+    flex:0 0 auto;
+    display:flex; align-items:center; gap:14px;
+    padding:11px 16px;
+    background:var(--chrome);
+    border-bottom:1.5px solid var(--ink);
+    font-family:var(--f-mono);
+    font-size:12px;
+  }
+  .dots{ display:flex; gap:7px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); }
+  .dot.r{ background:var(--active); }
+  .dot.y{ background:#F5B62B; }
+  .dot.g{ background:#38B24A; }
+  .urlbar{
+    flex:1; min-width:0;
+    display:flex; align-items:center; gap:8px;
+    background:var(--card);
+    border:1.4px solid var(--ink);
+    border-radius:999px;
+    padding:5px 14px;
+    color:var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .urlbar .lock{ color:var(--visited); }
+  .urlbar b{ color:var(--ink); font-weight:500; }
+  .chrome .brand{ color:var(--muted); letter-spacing:.02em; }
+  .chrome .brand b{ color:var(--ink); }
+
+  /* ---------- stage ---------- */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+
+  .slide{
+    position:absolute; inset:0;
+    padding:clamp(24px,4.4vw,72px);
+    display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden;
+    transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s;
+    overflow:auto;
+  }
+  .slide.active{
+    opacity:1; visibility:visible; transform:none;
+    transition:opacity .55s var(--ease), transform .55s var(--ease);
+    z-index:2;
+  }
+
+  /* staged reveal of children on the active slide */
+  .slide.active .rise{ animation:rise .6s var(--ease) both; }
+  .slide.active .rise:nth-child(1){ animation-delay:.05s; }
+  .slide.active .rise:nth-child(2){ animation-delay:.13s; }
+  .slide.active .rise:nth-child(3){ animation-delay:.21s; }
+  .slide.active .rise:nth-child(4){ animation-delay:.29s; }
+  .slide.active .rise:nth-child(5){ animation-delay:.37s; }
+  .slide.active .rise:nth-child(6){ animation-delay:.45s; }
+  .slide.active .rise:nth-child(7){ animation-delay:.53s; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ---------- shared type ---------- */
+  .eyebrow{
+    font-family:var(--f-mono); font-size:clamp(12px,1.15vw,15px);
+    color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(14px,2vw,26px);
+  }
+  .eyebrow .num{ color:var(--active); }
+  .eyebrow .tag{ color:var(--link); }
+
+  h1,h2{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.02; margin:0; }
+  h2{ font-size:clamp(30px,5.4vw,68px); }
+  .lead{ font-size:clamp(17px,2vw,25px); line-height:1.45; max-width:60ch; color:var(--ink); margin:clamp(16px,2.2vw,30px) 0 0; }
+  .lead.muted{ color:var(--muted); }
+  em.hl{ font-style:normal; color:var(--link); font-weight:600; }
+  em.hl2{ font-style:normal; color:var(--visited); font-weight:600; }
+
+  /* discussion / talking-point callout for the presenter */
+  .talk{
+    margin-top:clamp(18px,2.4vw,32px);
+    border-left:3px solid var(--visited);
+    padding:2px 0 2px 16px;
+    font-family:var(--f-mono); font-size:clamp(12.5px,1.15vw,15px);
+    color:var(--muted); line-height:1.7;
+    max-width:70ch;
+  }
+  .talk b{ color:var(--visited); font-weight:500; }
+
+  /* ---------- title slide ---------- */
+  .doctype{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.3vw,17px); margin:0 0 clamp(20px,3vw,40px); }
+  .doctype b{ color:var(--active); font-weight:500; }
+  .titlelink{
+    font-family:var(--f-display); font-weight:700; letter-spacing:-.03em; line-height:.98;
+    font-size:clamp(44px,9vw,128px);
+    color:var(--link);
+    text-decoration:underline; text-decoration-thickness:clamp(3px,.5vw,7px);
+    text-underline-offset:clamp(6px,1.2vw,16px);
+  }
+  .cursor{ display:inline-block; width:.5ch; height:.86em; margin-left:.06em; background:var(--active); transform:translateY(.08em); animation:blink 1.05s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .courseline{ font-family:var(--f-mono); color:var(--muted); font-size:clamp(13px,1.5vw,20px); margin-top:clamp(24px,3.4vw,46px); display:flex; flex-wrap:wrap; gap:8px 22px; }
+  .courseline b{ color:var(--ink); font-weight:500; }
+
+  /* ---------- definition list (key terms) ---------- */
+  .dl{ display:grid; gap:clamp(14px,2vw,26px); margin-top:clamp(20px,2.6vw,34px); max-width:72ch; }
+  .dl .row{ display:grid; grid-template-columns: minmax(150px, 22%) 1fr; gap:clamp(14px,2.4vw,34px); align-items:baseline; padding-bottom:clamp(14px,2vw,26px); border-bottom:1.4px dashed var(--line); }
+  .dl .row:last-child{ border-bottom:0; padding-bottom:0; }
+  .dt{ font-family:var(--f-mono); font-size:clamp(15px,1.7vw,22px); color:var(--link); font-weight:500; }
+  .dt .arrow{ color:var(--muted); }
+  .dd{ font-size:clamp(14.5px,1.55vw,20px); line-height:1.5; color:var(--ink); }
+  .dd .swap{ color:var(--visited); font-weight:600; }
+
+  /* ---------- big statement (belonging) ---------- */
+  .statement{ font-family:var(--f-display); font-weight:600; letter-spacing:-.02em; line-height:1.06; font-size:clamp(28px,5.6vw,72px); max-width:20ch; }
+  .statement .u{ color:var(--link); text-decoration:underline; text-decoration-thickness:.09em; text-underline-offset:.1em; }
+  .statement .v{ color:var(--visited); }
+
+  /* ---------- skills chip grid ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:clamp(9px,1vw,14px); margin-top:clamp(20px,2.6vw,34px); max-width:78ch; }
+  .chip{
+    font-family:var(--f-mono); font-size:clamp(13px,1.35vw,19px);
+    padding:clamp(8px,1vw,13px) clamp(12px,1.4vw,20px);
+    border:1.5px solid var(--ink); border-radius:999px;
+    background:var(--card); color:var(--ink);
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .chip.b{ color:var(--link); border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .chip.p{ color:var(--visited); border-color:var(--visited); box-shadow:3px 3px 0 var(--visited); }
+
+  /* ---------- history card ---------- */
+  .histgrid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:clamp(20px,3vw,48px); margin-top:clamp(18px,2.4vw,30px); align-items:start; }
+  @media (max-width:820px){ .histgrid{ grid-template-columns:1fr; } }
+  .factcard{ border:1.5px solid var(--ink); border-radius:10px; background:var(--card); overflow:hidden; box-shadow:5px 6px 0 rgba(0,0,0,.12); }
+  .factcard .head{ display:flex; gap:10px; align-items:center; padding:9px 14px; background:var(--chrome); border-bottom:1.4px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .factcard .body{ padding:clamp(16px,2vw,26px); display:grid; gap:14px; }
+  .fact{ display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:baseline; }
+  .fact .k{ font-family:var(--f-mono); font-size:clamp(12px,1.2vw,15px); color:var(--link); white-space:nowrap; }
+  .fact .val{ font-size:clamp(15px,1.6vw,20px); line-height:1.4; }
+  .fact .val b{ font-family:var(--f-display); }
+
+  /* ---------- two-column compare ---------- */
+  .compare{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(16px,2.4vw,32px); margin-top:clamp(18px,2.4vw,30px); }
+  @media (max-width:820px){ .compare{ grid-template-columns:1fr; } }
+  .col{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(16px,2vw,26px); background:var(--card); }
+  .col h3{ font-family:var(--f-mono); font-weight:700; margin:0 0 12px; font-size:clamp(15px,1.7vw,21px); }
+  .col.scripting h3{ color:var(--visited); }
+  .col.markup h3{ color:var(--link); }
+  .col ul{ margin:0; padding-left:1.1em; display:grid; gap:9px; font-size:clamp(14px,1.45vw,18px); line-height:1.45; }
+  .col li::marker{ color:var(--muted); }
+  .footnote{ grid-column:1/-1; font-family:var(--f-mono); font-size:clamp(12.5px,1.25vw,16px); color:var(--muted); text-align:center; padding-top:6px; }
+  .footnote em{ color:var(--ink); font-style:normal; }
+
+  /* ---------- numbered steps (visiting a website) ---------- */
+  .steps{ display:grid; gap:clamp(12px,1.6vw,20px); margin-top:clamp(18px,2.4vw,30px); max-width:88ch; }
+  .step{ display:grid; grid-template-columns:auto 1fr; gap:clamp(14px,2vw,26px); align-items:start; padding-bottom:clamp(12px,1.6vw,20px); border-bottom:1.4px dashed var(--line); }
+  .step:last-child{ border-bottom:0; }
+  .step .n{ font-family:var(--f-mono); font-weight:700; font-size:clamp(18px,2.4vw,34px); color:var(--link); line-height:1; min-width:2ch; }
+  .step .n.on4{ color:var(--visited); }
+  .step .txt{ font-size:clamp(14.5px,1.5vw,20px); line-height:1.42; }
+  .step .txt b{ font-family:var(--f-display); font-weight:600; }
+  .step .txt .note{ display:block; color:var(--muted); font-size:.86em; margin-top:5px; line-height:1.5; }
+
+  /* ---------- response options (what a server returns) ---------- */
+  .resp{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2vw,26px); margin-top:clamp(18px,2.4vw,30px); }
+  @media (max-width:820px){ .resp{ grid-template-columns:1fr; } }
+  .respcard{ border:1.5px solid var(--ink); border-radius:10px; padding:clamp(16px,2vw,26px); background:var(--card); display:flex; flex-direction:column; gap:10px; }
+  .respcard .tagname{ font-family:var(--f-mono); font-size:clamp(12.5px,1.2vw,15px); color:var(--muted); }
+  .respcard h4{ font-family:var(--f-display); font-weight:600; margin:0; font-size:clamp(17px,1.9vw,24px); line-height:1.15; }
+  .respcard p{ margin:0; font-size:clamp(13.5px,1.4vw,17px); line-height:1.45; color:var(--muted); }
+  .respcard.ours{ border-color:var(--link); box-shadow:5px 6px 0 var(--link); }
+  .respcard.ours h4{ color:var(--link); }
+  .respcard .badge{ font-family:var(--f-mono); font-size:12px; color:var(--card); background:var(--link); align-self:flex-start; padding:3px 9px; border-radius:999px; }
+
+  /* ---------- homework ---------- */
+  .hwgrid{ display:grid; grid-template-columns:1fr 1.1fr; gap:clamp(20px,3vw,48px); margin-top:clamp(18px,2.4vw,30px); align-items:start; }
+  @media (max-width:820px){ .hwgrid{ grid-template-columns:1fr; } }
+  .hw ol{ margin:0; padding-left:1.3em; display:grid; gap:14px; font-size:clamp(15px,1.6vw,21px); line-height:1.45; }
+  .hw ol b{ color:var(--visited); }
+  .checklist{ border:1.5px solid var(--ink); border-radius:10px; background:var(--card); overflow:hidden; box-shadow:5px 6px 0 rgba(0,0,0,.12); }
+  .checklist .head{ padding:9px 14px; background:var(--chrome); border-bottom:1.4px solid var(--ink); font-family:var(--f-mono); font-size:12px; color:var(--muted); }
+  .checklist ul{ list-style:none; margin:0; padding:clamp(14px,1.8vw,22px); display:grid; gap:12px; }
+  .checklist li{ display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; font-size:clamp(13.5px,1.4vw,17px); line-height:1.4; }
+  .checklist .box{ width:18px; height:18px; border:1.6px solid var(--link); border-radius:4px; margin-top:2px; }
+
+  /* ---------- closing ---------- */
+  .closing h2{ font-size:clamp(34px,6.4vw,86px); }
+  .closing .next{ margin-top:clamp(20px,2.6vw,34px); font-family:var(--f-mono); color:var(--muted); font-size:clamp(14px,1.5vw,19px); }
+  .closing .next b{ color:var(--link); }
+
+  /* ---------- footer / controls ---------- */
+  .footer{
+    flex:0 0 auto;
+    display:flex; align-items:center; gap:14px;
+    padding:9px 16px;
+    background:var(--chrome);
+    border-top:1.5px solid var(--ink);
+    font-family:var(--f-mono); font-size:12px; color:var(--muted);
+  }
+  .footer .sect{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .footer .sect b{ color:var(--ink); font-weight:500; }
+  .progress{ flex:1; height:6px; background:var(--card); border:1.4px solid var(--ink); border-radius:999px; overflow:hidden; }
+  .progress .bar{ height:100%; width:0; background:var(--link); transition:width .5s var(--ease); }
+  .counter{ white-space:nowrap; }
+  .counter b{ color:var(--ink); }
+  .navbtns{ display:flex; gap:6px; }
+  .navbtns button{
+    font-family:var(--f-mono); font-size:14px; line-height:1;
+    width:30px; height:26px; cursor:pointer;
+    background:var(--card); color:var(--ink);
+    border:1.4px solid var(--ink); border-radius:6px;
+  }
+  .navbtns button:hover{ background:var(--link); color:var(--card); border-color:var(--link); }
+  .navbtns button:focus-visible, .hint kbd:focus-visible{ outline:2px solid var(--active); outline-offset:2px; }
+
+  .hint{ position:fixed; right:clamp(18px,3vw,40px); bottom:clamp(18px,3vw,40px); z-index:40;
+    font-family:var(--f-mono); font-size:11.5px; color:var(--muted);
+    background:var(--card); border:1.4px solid var(--ink); border-radius:8px; padding:7px 11px;
+    box-shadow:3px 3px 0 rgba(0,0,0,.12); transition:opacity .4s; }
+  .hint kbd{ font-family:inherit; border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+
+  /* ---------- overview grid ---------- */
+  .overview{ position:fixed; inset:0; z-index:60; background:color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter:blur(4px); padding:clamp(24px,5vw,64px); overflow:auto; display:none; }
+  .overview.open{ display:block; }
+  .overview h3{ font-family:var(--f-mono); color:var(--muted); font-weight:500; margin:0 0 20px; font-size:13px; }
+  .ovgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+  .ovcard{ text-align:left; cursor:pointer; background:var(--card); border:1.5px solid var(--ink); border-radius:9px; padding:16px; min-height:118px; display:flex; flex-direction:column; gap:8px; box-shadow:3px 3px 0 rgba(0,0,0,.1); transition:transform .15s var(--ease); }
+  .ovcard:hover{ transform:translate(-2px,-2px); }
+  .ovcard.current{ border-color:var(--link); box-shadow:3px 3px 0 var(--link); }
+  .ovcard .oi{ font-family:var(--f-mono); font-size:12px; color:var(--active); }
+  .ovcard .ot{ font-family:var(--f-display); font-weight:600; font-size:16px; line-height:1.15; }
+
+  /* ---------- accessibility: reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    .slide,.slide.active,.slide.active .rise{ transition:none !important; animation:none !important; transform:none !important; }
+    .cursor{ animation:none; }
+    .progress .bar{ transition:none; }
+  }
+
+  @media (max-width:560px){
+    .dl .row{ grid-template-columns:1fr; gap:6px; }
+    .chrome .brand{ display:none; }
+    .footer .sect{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<main class="deck" role="application" aria-label="Week 1 slideshow">
+
+  <!-- browser chrome -->
+  <div class="chrome">
+    <div class="dots" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="urlbar"><span class="lock">🔒</span><span id="url">localhost:1989/<b>week-01</b>/intro-to-web</span></div>
+    <div class="brand">ICOM101 · <b>MTEC617</b></div>
+  </div>
+
+  <!-- stage -->
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <section class="slide" data-slug="intro-to-web" data-section="cover">
+      <p class="doctype rise">&lt;!doctype html&gt; <b>&lt;!-- your first line of the web --&gt;</b></p>
+      <h1 class="titlelink rise">Intro to<br>Web Development<span class="cursor"></span></h1>
+      <div class="courseline rise">
+        <span>ICOM101 <b>/ MTEC617</b></span>
+        <span>Week <b>01</b></span>
+        <span>CalArts <b>· Spring ’23</b></span>
+      </div>
+    </section>
+
+    <!-- 2 · WHAT ARE WE BUILDING -->
+    <section class="slide" data-slug="what-are-we-building" data-section="what we build">
+      <p class="eyebrow rise">&lt;!-- <span class="num">01</span> / <span class="tag">what are we building?</span> --&gt;</p>
+      <h2 class="rise">Directories, not<br>destinations.</h2>
+      <p class="lead rise">We build sites that act as a <em class="hl">hub for content</em> — but don't always host the content themselves.</p>
+      <p class="lead muted rise">For now we're less interested in fully-featured, rich-media browsing portfolios, and more concerned with creating <em class="hl2">useful directories</em> that link to content around the web.</p>
+    </section>
+
+    <!-- 3 · KEY TERMS -->
+    <section class="slide" data-slug="key-terms" data-section="key terms">
+      <p class="eyebrow rise">&lt;!-- <span class="num">02</span> / <span class="tag">key terms</span> --&gt;</p>
+      <h2 class="rise">The vocabulary.</h2>
+      <div class="dl rise">
+        <div class="row">
+          <div class="dt">server <span class="arrow">→</span></div>
+          <div class="dd">The computer that <b>hosts</b> your website. Servers make the internet work — in this class we'll avoid dealing with them directly wherever possible.</div>
+        </div>
+        <div class="row">
+          <div class="dt">client <span class="arrow">→</span></div>
+          <div class="dd">The computer <b>visiting</b> your website (the opposite of the server). <span class="swap">All the code we write runs on the client.</span></div>
+        </div>
+        <div class="row">
+          <div class="dt">front / back end <span class="arrow">→</span></div>
+          <div class="dd">Client side / server side, respectively. e.g. <span class="swap">"HTML is a front-end language."</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · BELONGING -->
+    <section class="slide" data-slug="everyone-belongs" data-section="everyone belongs">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">a note before we start</span> --&gt;</p>
+      <p class="statement rise">Everyone is <span class="u">welcome</span> in this class. <span class="v">We all belong here.</span></p>
+      <p class="lead muted rise">Coding is not reserved for a particular type of person. It's a skill that constantly evolves — and anyone interested in learning it can benefit, and master it, regardless of age, gender, or background. It's an inclusive, accessible field.</p>
+    </section>
+
+    <!-- 5 · WHY -->
+    <section class="slide" data-slug="why-this" data-section="why this matters">
+      <p class="eyebrow rise">&lt;!-- <span class="num">03</span> / <span class="tag">why we learn what we learn</span> --&gt;</p>
+      <h2 class="rise">HTML &amp; CSS are<br>the front door.</h2>
+      <p class="lead rise">They're essential for anyone building websites or web apps — and a solid grasp of both makes it far easier to pick up <em class="hl">JavaScript</em>, which adds interactivity and dynamic behavior.</p>
+      <p class="lead muted rise">They're also relatively <em class="hl2">simple to learn</em>, which makes them a great first step into programming.</p>
+    </section>
+
+    <!-- 6 · SKILLS -->
+    <section class="slide" data-slug="skills" data-section="the syllabus">
+      <p class="eyebrow rise">&lt;!-- <span class="num">04</span> / <span class="tag">skills we will learn</span> --&gt;</p>
+      <h2 class="rise">Everything on the map.</h2>
+      <div class="chips rise">
+        <span class="chip b">HTML</span>
+        <span class="chip b">CSS</span>
+        <span class="chip p">JavaScript</span>
+        <span class="chip p">jQuery</span>
+        <span class="chip">Command Line</span>
+        <span class="chip">Linux</span>
+        <span class="chip">GitHub</span>
+        <span class="chip">WordPress</span>
+        <span class="chip">APIs</span>
+        <span class="chip">Software Best Practices</span>
+        <span class="chip">Reverse Engineering</span>
+      </div>
+      <p class="talk rise"><b>// discuss</b> — we don't learn these all at once. Today is just the first two chips.</p>
+    </section>
+
+    <!-- 7 · HTML HISTORY -->
+    <section class="slide" data-slug="html-history" data-section="html history">
+      <p class="eyebrow rise">&lt;!-- <span class="num">05</span> / <span class="tag">a short history of HTML</span> --&gt;</p>
+      <h2 class="rise">HyperText<br>Markup Language.</h2>
+      <div class="histgrid">
+        <div class="factcard rise">
+          <div class="head"><span class="dot r" style="width:9px;height:9px"></span> html-1989.log</div>
+          <div class="body">
+            <div class="fact"><span class="k">proposed_by</span><span class="val"><b>Tim Berners-Lee</b></span></div>
+            <div class="fact"><span class="k">year</span><span class="val"><b>1989</b></span></div>
+            <div class="fact"><span class="k">where</span><span class="val"><b>CERN</b> — Switzerland</span></div>
+            <div class="fact"><span class="k">why</span><span class="val">To share scientific information between researchers at different institutions — structuring &amp; formatting it for the World Wide Web.</span></div>
+          </div>
+        </div>
+        <div class="rise">
+          <p class="talk" style="margin-top:0">
+            <b>// discuss</b><br>
+            → old computers — green-on-black screens, SGML<br>
+            → government funding for the internet &amp; institutions<br>
+            → <em class="hl2">markup</em> language vs <em class="hl">programming</em> language
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · CSS HISTORY -->
+    <section class="slide" data-slug="css-history" data-section="css history">
+      <p class="eyebrow rise">&lt;!-- <span class="num">06</span> / <span class="tag">a short history of CSS</span> --&gt;</p>
+      <h2 class="rise">Cascading<br>Style Sheets.</h2>
+      <div class="histgrid">
+        <div class="factcard rise">
+          <div class="head"><span class="dot g" style="width:9px;height:9px"></span> css-1994.log</div>
+          <div class="body">
+            <div class="fact"><span class="k">proposed_by</span><span class="val"><b>Håkon Wium Lie</b></span></div>
+            <div class="fact"><span class="k">year</span><span class="val"><b>1994</b> · also at CERN</span></div>
+            <div class="fact"><span class="k">css1</span><span class="val">Released <b>1996</b> — basic font &amp; color control</span></div>
+            <div class="fact"><span class="k">the_idea</span><span class="val">Separate a site's <em class="hl2">presentation</em> from its <em class="hl">structure</em> (which HTML defines).</span></div>
+          </div>
+        </div>
+        <div class="rise">
+          <p class="lead" style="margin-top:0">CSS became the tool for building visually consistent, appealing sites — and today it's supported by every modern browser.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · SCRIPTING vs MARKUP -->
+    <section class="slide" data-slug="scripting-vs-markup" data-section="languages">
+      <p class="eyebrow rise">&lt;!-- <span class="num">07</span> / <span class="tag">scripting vs markup</span> --&gt;</p>
+      <h2 class="rise">Two kinds of language.</h2>
+      <div class="compare">
+        <div class="col scripting rise">
+          <h3>Scripting →</h3>
+          <ul>
+            <li>Gives instructions to <em>control another program</em> — doesn't work standalone.</li>
+            <li><em class="hl2">Interpreted</em>, not compiled — scanned line by line.</li>
+            <li>No compiler involved.</li>
+            <li>e.g. JavaScript, PHP, Perl, Python, VBScript.</li>
+          </ul>
+        </div>
+        <div class="col markup rise">
+          <h3>Markup →</h3>
+          <ul>
+            <li>Prepares the <em>structure</em> and look of a page — <em class="hl">presentational</em>.</li>
+            <li>No logic, no algorithms, asks the computer nothing.</li>
+            <li>Tells the browser how to structure &amp; style data.</li>
+            <li>e.g. HTML, CSS, XML.</li>
+          </ul>
+        </div>
+        <p class="footnote rise">All scripting languages are programming languages — but <em>not all programming languages are scripting languages.</em></p>
+      </div>
+    </section>
+
+    <!-- 10 · VISITING A WEBSITE -->
+    <section class="slide" data-slug="visiting-a-website" data-section="visiting a site">
+      <p class="eyebrow rise">&lt;!-- <span class="num">08</span> / <span class="tag">what happens when you visit a website</span> --&gt;</p>
+      <h2 class="rise">Like calling a phone number.</h2>
+      <p class="lead muted rise" style="margin-bottom:6px">Every site has a unique IP address — like a phone number. DNS is the address book that maps names to addresses.</p>
+      <div class="steps">
+        <div class="step rise"><div class="n">1</div><div class="txt"><b>You type an address</b> into the browser and hit enter.</div></div>
+        <div class="step rise"><div class="n">2</div><div class="txt"><b>Your ISP asks a DNS</b> (Domain Name Server) where that site lives.</div></div>
+        <div class="step rise"><div class="n">3</div><div class="txt"><b>The DNS resolves the request</b> — it looks up the domain and returns the site's IP address to your ISP, which forwards your request there.</div></div>
+        <div class="step rise"><div class="n on4">4</div><div class="txt"><b>The server receives your request</b> and is expected to generate a response.<span class="note">→ next slide: what that response can be.</span></div></div>
+      </div>
+    </section>
+
+    <!-- 11 · THE RESPONSE -->
+    <section class="slide" data-slug="the-response" data-section="the response">
+      <p class="eyebrow rise">&lt;!-- <span class="num">09</span> / <span class="tag">the server generates a response</span> --&gt;</p>
+      <h2 class="rise">Three ways to answer.</h2>
+      <div class="resp">
+        <div class="respcard rise">
+          <span class="tagname">&lt;dynamic&gt;</span>
+          <h4>A Twitter server</h4>
+          <p>Dynamically generates your custom homepage and returns it.</p>
+        </div>
+        <div class="respcard rise">
+          <span class="tagname">&lt;json&gt;</span>
+          <h4>An API endpoint</h4>
+          <p>Calculates some data and returns it in a machine-readable format.</p>
+        </div>
+        <div class="respcard ours rise">
+          <span class="tagname">&lt;html&gt;</span>
+          <h4>A static site</h4>
+          <p>Just returns a pre-written chunk of HTML.</p>
+          <span class="badge">← this is what we're doing</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · HOMEWORK -->
+    <section class="slide" data-slug="homework" data-section="homework">
+      <p class="eyebrow rise">&lt;!-- <span class="num">10</span> / <span class="tag">homework · week 1</span> --&gt;</p>
+      <h2 class="rise">Read the web like a designer.</h2>
+      <div class="hwgrid">
+        <div class="hw rise">
+          <ol>
+            <li><b>Choose three websites</b> to explore — businesses, organizations, or personal blogs.</li>
+            <li>Spend <b>at least 5 minutes</b> on each, noting what you like and dislike.</li>
+            <li>Write a <b>short summary</b> analyzing those elements and why — with specific examples.</li>
+          </ol>
+        </div>
+        <div class="checklist rise">
+          <div class="head">// while you explore, ask:</div>
+          <ul>
+            <li><span class="box"></span><span>What's the overall design? Is it visually appealing?</span></li>
+            <li><span class="box"></span><span>Is the navigation intuitive — can you find things easily?</span></li>
+            <li><span class="box"></span><span>Is the content organized in a logical way?</span></li>
+            <li><span class="box"></span><span>Any interactive elements — forms, videos, games?</span></li>
+            <li><span class="box"></span><span>Is it responsive to the size of the screen?</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · CLOSING -->
+    <section class="slide closing" data-slug="see-you-next-week" data-section="wrap-up">
+      <p class="eyebrow rise">&lt;!-- <span class="tag">end of week 01</span> --&gt;</p>
+      <h2 class="rise">Next week, we<br>write our first tags.</h2>
+      <p class="next rise">&lt;/week-01&gt; · &nbsp;up next: <b>hand-writing HTML</b> — the anatomy of an element.</p>
+    </section>
+
+  </div>
+
+  <!-- footer / controls -->
+  <div class="footer">
+    <div class="sect">&lt;section&gt; <b id="sectName">cover</b></div>
+    <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+    <div class="counter"><b id="cur">01</b> / <span id="total">13</span></div>
+    <div class="navbtns">
+      <button id="prev" title="Previous (←)" aria-label="Previous slide">←</button>
+      <button id="next" title="Next (→)" aria-label="Next slide">→</button>
+      <button id="fs" title="Fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- overview grid -->
+<div class="overview" id="overview" role="dialog" aria-label="Slide overview" aria-modal="true">
+  <h3>// overview — click a slide to jump. press <kbd>O</kbd> or <kbd>Esc</kbd> to close.</h3>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<div class="hint" id="hint">
+  <kbd>←</kbd> <kbd>→</kbd> move · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var i = 0;
+
+  var bar = document.getElementById('bar');
+  var cur = document.getElementById('cur');
+  var totalEl = document.getElementById('total');
+  var sectName = document.getElementById('sectName');
+  var urlEl = document.getElementById('url');
+  var hint = document.getElementById('hint');
+  var overview = document.getElementById('overview');
+  var ovgrid = document.getElementById('ovgrid');
+
+  totalEl.textContent = total;
+  var pad = function(n){ return (n<10?'0':'') + n; };
+
+  function render(){
+    slides.forEach(function(s, idx){ s.classList.toggle('active', idx===i); });
+    var s = slides[i];
+    cur.textContent = pad(i+1);
+    bar.style.width = ((i+1)/total*100) + '%';
+    sectName.textContent = s.getAttribute('data-section') || '';
+    urlEl.innerHTML = 'localhost:1989/<b>week-01</b>/' + (s.getAttribute('data-slug') || '');
+    if (history.replaceState) history.replaceState(null, '', '#' + (i+1));
+    // update overview highlight
+    Array.prototype.forEach.call(ovgrid.children, function(c, idx){
+      c.classList.toggle('current', idx===i);
+    });
+  }
+
+  function go(n){
+    var next = Math.max(0, Math.min(total-1, n));
+    if (next === i) return;
+    i = next;
+    render();
+  }
+  function nextSlide(){ go(i+1); }
+  function prevSlide(){ go(i-1); }
+
+  // ---- keyboard ----
+  document.addEventListener('keydown', function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (overview.classList.contains('open')){
+      if (k === 'Escape' || k === 'o' || k === 'O'){ toggleOverview(); e.preventDefault(); }
+      return;
+    }
+    if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'Enter'){ nextSlide(); e.preventDefault(); }
+    else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace'){ prevSlide(); e.preventDefault(); }
+    else if (k === 'Home'){ go(0); e.preventDefault(); }
+    else if (k === 'End'){ go(total-1); e.preventDefault(); }
+    else if (k === 'o' || k === 'O'){ toggleOverview(); e.preventDefault(); }
+    else if (k === 'f' || k === 'F'){ toggleFullscreen(); e.preventDefault(); }
+    else if (k >= '1' && k <= '9'){ go(parseInt(k,10)-1); e.preventDefault(); }
+  });
+
+  document.getElementById('next').addEventListener('click', nextSlide);
+  document.getElementById('prev').addEventListener('click', prevSlide);
+
+  // ---- click-to-advance on the stage (not on buttons/links) ----
+  document.getElementById('stage').addEventListener('click', function(e){
+    if (e.target.closest('a, button')) return;
+    // right 65% advances, left 35% goes back — presenter-friendly
+    var x = e.clientX / window.innerWidth;
+    if (x > 0.35) nextSlide(); else prevSlide();
+  });
+
+  // ---- touch swipe ----
+  var tx = 0, ty = 0;
+  document.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)){ dx < 0 ? nextSlide() : prevSlide(); }
+  }, {passive:true});
+
+  // ---- fullscreen ----
+  var fsBtn = document.getElementById('fs');
+  function fsElement(){ return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement; }
+  function toggleFullscreen(){
+    var el = document.documentElement;
+    if (!fsElement()){
+      var req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (req){ var r = req.call(el); if (r && r.catch) r.catch(function(){}); }
+    } else {
+      var exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+      if (exit){ var e2 = exit.call(document); if (e2 && e2.catch) e2.catch(function(){}); }
+    }
+  }
+  function syncFsIcon(){
+    var on = !!fsElement();
+    if (fsBtn){ fsBtn.textContent = on ? '⤢' : '⛶'; fsBtn.title = on ? 'Exit fullscreen (F)' : 'Fullscreen (F)'; }
+  }
+  if (fsBtn) fsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleFullscreen(); });
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev, syncFsIcon);
+  });
+
+  // ---- overview ----
+  slides.forEach(function(s, idx){
+    var b = document.createElement('button');
+    b.className = 'ovcard';
+    var title = (s.querySelector('h1, h2') || {}).textContent || s.getAttribute('data-section') || '';
+    b.innerHTML = '<span class="oi">' + pad(idx+1) + ' · ' + (s.getAttribute('data-section')||'') + '</span>' +
+                  '<span class="ot">' + title.replace(/\s+/g,' ').trim() + '</span>';
+    b.addEventListener('click', function(){ go(idx); toggleOverview(); });
+    ovgrid.appendChild(b);
+  });
+  function toggleOverview(){ overview.classList.toggle('open'); }
+
+  // ---- fade the hint after a few seconds ----
+  setTimeout(function(){ hint.style.opacity = '0'; }, 5200);
+  document.addEventListener('mousemove', function(){
+    hint.style.opacity = '1';
+    clearTimeout(hint._t);
+    hint._t = setTimeout(function(){ hint.style.opacity = '0'; }, 2600);
+  });
+
+  // ---- restore from hash ----
+  var start = parseInt((location.hash || '').replace('#',''), 10);
+  if (start >= 1 && start <= total) i = start - 1;
+  render();
+})();
+</script>
+</body>
+</html>
