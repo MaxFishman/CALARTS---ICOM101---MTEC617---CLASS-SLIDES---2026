@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Intro to Web Development — ICOM101 / MTEC617 · CalArts</title>
-<meta name="description" content="Course hub for Intro to Web Development (ICOM101 / MTEC617), CalArts Spring '23. A directory of weekly lecture slideshows." />
+<meta name="description" content="Course hub for Intro to Web Development (ICOM101 / MTEC617), CalArts Spring 2026. A directory of weekly lecture slideshows. Instructor: Max Fishman (mfishman@calarts.edu)." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -64,6 +64,21 @@
     display:flex; flex-wrap:wrap; gap:8px 22px; }
   .sub b{ color:var(--ink); font-weight:500; }
 
+  /* instructor / contact card */
+  .instructor{ margin-top:clamp(20px,2.8vw,32px); border:1.5px solid var(--ink); border-radius:11px; background:var(--card);
+    box-shadow:5px 6px 0 var(--link); padding:clamp(14px,1.8vw,22px) clamp(16px,2vw,26px);
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 26px; }
+  .instructor .who{ display:flex; flex-direction:column; gap:3px; }
+  .instructor .role{ font-family:var(--f-mono); font-size:clamp(11px,1.05vw,13px); color:var(--muted); }
+  .instructor .name{ font-family:var(--f-display); font-weight:600; font-size:clamp(18px,2.1vw,26px); color:var(--ink); }
+  .instructor .contact{ display:flex; flex-wrap:wrap; gap:8px 20px; }
+  .instructor .contact a{ font-family:var(--f-mono); font-size:clamp(12.5px,1.3vw,16px); color:var(--link); text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px; border-bottom:1.5px solid transparent; transition:border-color .15s var(--ease); }
+  .instructor .contact a:hover{ border-bottom-color:var(--link); }
+  .instructor .contact a:visited{ color:var(--visited); }
+  .instructor .contact .ci{ color:var(--active); }
+  @media (max-width:560px){ .instructor{ flex-direction:column; align-items:flex-start; } }
+
   .listlabel{ font-family:var(--f-mono); font-size:clamp(12px,1.15vw,15px); color:var(--muted); margin:clamp(30px,4.4vw,52px) 0 clamp(14px,1.8vw,20px); }
   .listlabel .n{ color:var(--active); }
 
@@ -104,6 +119,8 @@
   .foot{ margin-top:clamp(30px,4.4vw,52px); padding-top:clamp(16px,2vw,22px); border-top:1.4px dashed var(--line);
     font-family:var(--f-mono); font-size:clamp(11.5px,1.1vw,14px); color:var(--muted); line-height:1.7; }
   .foot b{ color:var(--ink); font-weight:500; } .foot kbd{ border:1.2px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink); }
+  .foot a{ color:var(--link); text-decoration:none; border-bottom:1px solid transparent; }
+  .foot a:hover{ border-bottom-color:var(--link); } .foot a:visited{ color:var(--visited); }
 
   @media (prefers-reduced-motion: reduce){ .week{ transition:none; } }
 </style>
@@ -122,8 +139,19 @@
     <h1>Intro to Web<br>Development.</h1>
     <div class="sub">
       <span>ICOM101 <b>/ MTEC617</b></span>
-      <span>CalArts <b>· Spring ’23</b></span>
+      <span>CalArts <b>· Spring 2026</b></span>
       <span><b>Lecture slideshows</b></span>
+    </div>
+
+    <div class="instructor">
+      <div class="who">
+        <span class="role">// instructor</span>
+        <span class="name">Max Fishman</span>
+      </div>
+      <div class="contact">
+        <a href="mailto:mfishman@calarts.edu"><span class="ci">✉</span> mfishman@calarts.edu</a>
+        <a href="tel:+16264633100"><span class="ci">☎</span> (626)&nbsp;463-3100</a>
+      </div>
     </div>
 
     <p class="listlabel">&lt;ul&gt; <span class="n">//</span> pick a week to present</p>
@@ -241,8 +269,9 @@
     </div>
 
     <p class="foot">
-      <b>Presenting:</b> open a week, then press <kbd>F</kbd> (or the <b>⛶</b> button) for fullscreen. Navigate with <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> · <kbd>O</kbd> for the slide overview.<br>
-      &lt;/intro-to-web&gt; · built for the classroom.
+      <b>For instructors — presenting:</b> open a week, then press <kbd>F</kbd> (or the <b>⛶</b> button) for fullscreen. Navigate with <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> · <kbd>O</kbd> for the slide overview · <kbd>1</kbd>–<kbd>9</kbd> to jump. Decks are responsive and adapt to light/dark themes.<br>
+      <b>Questions?</b> Contact Max Fishman — <a href="mailto:mfishman@calarts.edu">mfishman@calarts.edu</a> · <a href="tel:+16264633100">(626)&nbsp;463-3100</a><br>
+      &lt;/intro-to-web&gt; · © 2026 Max Fishman · CalArts · ICOM 101 / MTEC 617.
     </p>
   </div>
 </main>
