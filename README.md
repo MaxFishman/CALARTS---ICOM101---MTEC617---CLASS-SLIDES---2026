@@ -47,7 +47,6 @@ Open any week in a browser, then:
 - **`1`–`9`** — jump to a slide · **`Home` / `End`** — first / last
 - Click the right/left side of a slide to move forward/back; swipe on touch
 
-The decks are responsive, respect `prefers-reduced-motion`, and adapt to light or dark themes.
 
 ---
 
