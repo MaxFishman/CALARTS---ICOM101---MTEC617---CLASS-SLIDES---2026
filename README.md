@@ -50,4 +50,10 @@ Open any week in a browser, then:
 
 ---
 
+<p align="center">
+  <img src="https://i.imgur.com/XZpdi2e.png" alt="Image">
+</p>
+
 <p align="center"><sub>© 2026 Max Fishman · California Institute of the Arts · ICOM 101 / MTEC 617</sub></p>
+
+
