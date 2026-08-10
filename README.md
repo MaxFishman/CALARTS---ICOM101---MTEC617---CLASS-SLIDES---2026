@@ -7,9 +7,8 @@
 
 ---
 
-A set of interactive, browser-based lecture **slideshows** for CalArts' Intro to Web Development course. Each week is a single, self-contained HTML file — no build step, no dependencies — designed to be presented in class and explored by students afterward.
+A set of interactive, browser-based lecture **slideshows** for CalArts' ICOM101 / MTEC617 course.
 
-Every deck shares one visual identity (a "view-source" browser frame built around the classic hyperlink palette) and its own topic-specific signature: element diagrams, the box model, device frames, a live DevTools console, a WordPress dashboard mock, an API flow, and a grading rubric.
 
 ---
 
