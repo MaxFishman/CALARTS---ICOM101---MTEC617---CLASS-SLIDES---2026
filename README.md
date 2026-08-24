@@ -12,14 +12,14 @@ Browser-based lecture **slideshows** for CalArts' ICOM101 / MTEC617 course.
 
 ---
 
-## 👩‍🏫 Instructor
+##  Instructor
 
 **Max Fishman**
 📧 [mfishman@calarts.edu](mailto:mfishman@calarts.edu) &nbsp;·&nbsp; 📞 (626)&nbsp;463-3100
 
 ---
 
-## 📚 Lectures
+##  Lectures
 
 Open **[`index.html`](index.html)** for the course hub, or jump straight to a week:
 
@@ -37,7 +37,7 @@ Open **[`index.html`](index.html)** for the course hub, or jump straight to a we
 
 ---
 
-## ▶️ Presenting
+##  Presenting
 
 Open any week in a browser, then:
 
