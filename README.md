@@ -9,6 +9,8 @@
 
 Browser-based lecture **slideshows** for CalArts' ICOM101 / MTEC617 course.
 
+[Go to Site](https://maxfishman.github.io/CALARTS---ICOM101---MTEC617---CLASS-SLIDES---2026/)
+
 
 ---
 
